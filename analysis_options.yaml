@@ -1,0 +1,107 @@
+# =============================================================================
+# THÔNG TIN DỰ ÁN & KIẾN TRÚC (ARCHITECTURAL DOCUMENTATION)
+# =============================================================================
+#
+# 1. Dự án này làm gì:
+#    - Một ứng dụng Music App (nghe nhạc trực tuyến và ngoại tuyến) viết bằng Flutter.
+#
+# 2. Cấu trúc thư mục chính (Clean Architecture - Feature-first):
+#    - lib/core/ : Chứa các module dùng chung của hệ thống (network, theme, constants, utils).
+#    - lib/features/ : Chia theo tính năng chính (auth, player, playlist, explore).
+#      Trong mỗi feature chia làm 3 tầng:
+#      - data/: datasources (gọi API/DB), models (DTOs), repositories (implement).
+#      - domain/: entities (lớp business thuần túy), repositories (interface/contract).
+#      - presentation/: controllers (Riverpod Notifiers), pages (màn hình UI), widgets (UI components nhỏ).
+#
+# 3. Tech Stack đang dùng:
+#    - Framework: Flutter
+#    - State Management: Riverpod (Ưu tiên AsyncNotifierProvider để quản lý state bất đồng bộ)
+#    - Local/Remote Communication: Dio, Retrofit (hoặc ApiClient tự viết)
+#    - Code Generation: Freezed (Entity & Model bất biến - Immutable), Build Runner
+#
+# 4. Luồng xử lý quan trọng (Data Flow):
+#    - DataSource (Remote/Local) -> Trả về DTO Model -> Repository (Map từ DTO Model sang Domain Entity)
+#    - Domain Entity -> Riverpod Controller (AsyncNotifier) -> Rebuild UI (ConsumerWidget/ConsumerStatefulWidget)
+#
+# 5. Những file/module cần chú ý:
+#    - lib/core/network/api_client.dart : Điểm tập trung cấu hình gọi mạng (Dio).
+#    - lib/core/theme/theme.dart : Thiết lập giao diện Dark/Light Mode đồng nhất.
+#    - lib/features/player : Feature cốt lõi xử lý audio playback.
+#
+# 6. Quy ước code, naming:
+#    - Tên file: snake_case (ví dụ: song_detail_page.dart).
+#    - Tên class: PascalCase (ví dụ: SongDetailPage, PlayerNotifier).
+#    - Tên biến, hàm: camelCase (ví dụ: currentPlayingSong, playNextSong()).
+#    - Data Transfer Object đặt đuôi là `Dto` hoặc `Model` (ví dụ: TrackDto), Domain Entity giữ nguyên tên gốc (ví dụ: Track).
+#
+# 7. Tính năng cốt lõi (Music Basic Application):
+#    - Màn hình Home:
+#      + Hiển thị danh sách bài hát nổi bật dưới dạng Slide Images + Auto Run (Realtime).
+#      + Tính năng tìm kiếm bài hát theo tên (Name).
+#      + Hiển thị một số bài hát phổ biến (Popular) và bài hát mới nhất (Newest) (Realtime).
+#      + Bottom Layout điều khiển trình phát nhạc nhanh: Play/Pause, Next, Back, Close.
+#    - Các màn hình danh sách (Realtime):
+#      + Danh sách tất cả bài hát (All Songs).
+#      + Danh sách bài hát nổi bật (Featured Songs).
+#      + Danh sách bài hát phổ biến nhiều người nghe (Popular Songs).
+#      + Danh sách bài hát mới nhất (New Songs).
+#    - Màn hình Music Player:
+#      + Điều khiển trình phát nhạc (Play/Pause, Next, Back, Tua nhạc / Seek).
+#      + Hiển thị thời gian chạy nhạc hiện tại & Tổng thời lượng.
+#      + Hiển thị danh sách bài hát đang chạy (List Songs Playing).
+#      + Push Notification điều khiển trình phát nhạc (Play/Pause, Next, Back, Close).
+#    - Tính năng phụ trợ:
+#      + Feedback: Gửi phản hồi, đóng góp ý kiến hoặc đánh giá ứng dụng.
+#      + Contact: Hiển thị các phương thức liên hệ với nhà phát triển ứng dụng.
+#
+# 7.1. Các tính năng nâng cao bổ sung (Advanced Features):
+#    - Module Quản lý tài khoản (Auth) theo 2 role riêng biệt (Admin & User):
+#      + Đăng nhập, đăng ký, quên mật khẩu, đổi mật khẩu.
+#      + Hiển thị thông tin cá nhân (User Profile).
+#      + Đăng xuất.
+#    - Role Quản trị viên (Admin):
+#      + Quản lý bài hát: Thêm, sửa, xóa, hiển thị danh sách bài hát trên ứng dụng.
+#      + Tìm kiếm bài hát theo tên trong trang quản lý.
+#      + Quản lý danh sách feedback (phản hồi, đóng góp ý kiến) của người dùng.
+#    - Role Người dùng (User):
+#      + Hiển thị danh sách tất cả bài hát yêu thích (Favorite Songs) theo từng User (Realtime).
+#
+# 8. Lưu ý Code Style (Dành cho AI & Developers):
+#    - Viết code tường minh, dễ hiểu, tránh các cú pháp viết tắt quá mức gây khó hiểu.
+#    - Luôn viết comment giải thích ý đồ thiết kế với các hàm xử lý logic phức tạp.
+#    - Giữ các hàm ngắn gọn, tập trung vào một nhiệm vụ duy nhất (Single Responsibility).
+# =============================================================================
+
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at https://dart.dev/lints.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
+    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
+
+analyzer:
+  errors:
+    non_abstract_class_inherits_abstract_member: ignore
+

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353004129332",
+    "project_id": "trippo-463109",
+    "storage_bucket": "trippo-463109.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353004129332:android:2eeed3e277c85700cd0e61",
+        "android_client_info": {
+          "package_name": "com.example.music_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOma_ot39-NA5zqQIK6arsds8M1fclLcg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
