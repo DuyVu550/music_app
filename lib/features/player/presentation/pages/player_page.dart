@@ -236,7 +236,7 @@ class PlayerPage extends ConsumerWidget {
                                           width: 40,
                                           height: 40,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) => Image.asset('assets/images/album_placeholder.png', width: 40, height: 40, fit: BoxFit.cover),
+                                          errorBuilder: (_, _, _) => Image.asset('assets/images/album_placeholder.png', width: 40, height: 40, fit: BoxFit.cover),
                                         )
                                       : Image.asset(
                                           item.coverUrl ?? 'assets/images/album_placeholder.png',
@@ -353,7 +353,7 @@ class _SpinningAlbumArtState extends State<SpinningAlbumArt> with SingleTickerPr
                         width: 280,
                         height: 280,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Image.asset('assets/images/album_placeholder.png', width: 280, height: 280, fit: BoxFit.cover),
+                        errorBuilder: (_, _, _) => Image.asset('assets/images/album_placeholder.png', width: 280, height: 280, fit: BoxFit.cover),
                       )
                     : Image.asset(
                         widget.track.coverUrl ?? 'assets/images/album_placeholder.png',

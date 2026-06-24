@@ -1,14 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart' as ja;
 import '../../data/datasources/audio_player_service.dart';
-import '../../data/repositories/track_repository_impl.dart';
 import '../../domain/entities/player_state.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
 
-final trackRepositoryProvider = Provider<TrackRepository>((ref) {
-  return TrackRepositoryImpl();
-});
 
 class PlayerNotifier extends AsyncNotifier<PlayerState> {
   bool _isPlaylistInitialized = false;
@@ -84,14 +79,18 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
         playlistChanged = true;
       }
 
-      state = AsyncData(current.copyWith(
-        currentTrack: track,
-        playlist: updatedPlaylist,
-        isPlaying: true,
-      ));
-      
+      state = AsyncData(
+        current.copyWith(
+          currentTrack: track,
+          playlist: updatedPlaylist,
+          isPlaying: true,
+        ),
+      );
+
       if (!_isPlaylistInitialized || playlistChanged) {
-        ref.read(audioPlayerServiceProvider).setPlaylist(updatedPlaylist, initialIndex: index);
+        ref
+            .read(audioPlayerServiceProvider)
+            .setPlaylist(updatedPlaylist, initialIndex: index);
         _isPlaylistInitialized = true;
       } else {
         ref.read(audioPlayerServiceProvider).seek(Duration.zero, index: index);
@@ -135,15 +134,18 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
     if (current != null) {
       ref.read(audioPlayerServiceProvider).stop();
       _isPlaylistInitialized = false;
-      state = AsyncData(current.copyWith(
-        currentTrack: null,
-        isPlaying: false,
-        position: Duration.zero,
-      ));
+      state = AsyncData(
+        current.copyWith(
+          currentTrack: null,
+          isPlaying: false,
+          position: Duration.zero,
+        ),
+      );
     }
   }
 }
 
-final playerNotifierProvider = AsyncNotifierProvider<PlayerNotifier, PlayerState>(() {
-  return PlayerNotifier();
-});
+final playerNotifierProvider =
+    AsyncNotifierProvider<PlayerNotifier, PlayerState>(() {
+      return PlayerNotifier();
+    });

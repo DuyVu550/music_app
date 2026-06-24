@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:music_app/main.dart';
+import 'package:music_app/features/auth/domain/entities/user.dart';
+import 'package:music_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:music_app/features/auth/presentation/controllers/auth_notifier.dart';
 import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
-import 'package:music_app/features/explore/presentation/controllers/featured_tracks_notifier.dart';
-import 'package:music_app/features/player/presentation/controllers/player_notifier.dart';
 
 class FakeTrackRepository implements TrackRepository {
   final mockTrack = const Track(
@@ -34,13 +34,55 @@ class FakeTrackRepository implements TrackRepository {
   Future<List<Track>> getAllTracks() async => [mockTrack];
 }
 
+class FakeAuthRepository implements AuthRepository {
+  @override
+  Future<User?> getCurrentUser() async => const User(
+    id: '1',
+    email: 'test@example.com',
+    name: 'Test User',
+    role: UserRole.user,
+  );
+
+  @override
+  Future<User> login({required String email, required String password}) async =>
+      getCurrentUser().then((u) => u!);
+
+  @override
+  Future<User> register({
+    required String name,
+    required String email,
+    required String password,
+    required UserRole role,
+  }) async => getCurrentUser().then((u) => u!);
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {}
+
+  @override
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {}
+
+  @override
+  Future<void> updateName(String newName) async {}
+
+  @override
+  Future<void> updateAvatar(String base64Image) async {}
+}
+
 void main() {
-  testWidgets('App smoke test - verifies home page title', (WidgetTester tester) async {
+  testWidgets('App smoke test - verifies home page title', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          featuredTrackRepositoryProvider.overrideWithValue(FakeTrackRepository()),
+          authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
           trackRepositoryProvider.overrideWithValue(FakeTrackRepository()),
         ],
         child: const MyApp(),
@@ -50,7 +92,7 @@ void main() {
     // Let it render
     await tester.pumpAndSettle();
 
-    // Verify that the title 'Harmonix' is displayed.
+    // Verify that the title 'Harmonix' is displayed on the HomePage.
     expect(find.text('Harmonix'), findsOneWidget);
   });
 }

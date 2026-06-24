@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:music_app/features/player/domain/entities/player_state.dart';
 import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
-import 'package:music_app/features/explore/presentation/controllers/featured_tracks_notifier.dart';
 import 'package:music_app/features/player/presentation/controllers/player_notifier.dart';
 import 'package:music_app/features/explore/presentation/pages/popular_songs_page.dart';
 
@@ -94,7 +93,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          featuredTrackRepositoryProvider.overrideWithValue(fakeTrackRepo),
+          trackRepositoryProvider.overrideWithValue(fakeTrackRepo),
           playerNotifierProvider.overrideWith(() => fakePlayerNotifier),
         ],
         child: const MaterialApp(
@@ -159,7 +158,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          featuredTrackRepositoryProvider.overrideWithValue(fakeTrackRepo),
+          trackRepositoryProvider.overrideWithValue(fakeTrackRepo),
           playerNotifierProvider.overrideWith(() => fakePlayerNotifier),
         ],
         child: const MaterialApp(

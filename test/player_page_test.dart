@@ -146,7 +146,7 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Check title and album
       expect(find.text('Song One'), findsNWidgets(2));
@@ -199,7 +199,7 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Ensure Slider does not crash and is clamped to max duration (180)
       final sliderFinder = find.byType(Slider);
@@ -273,7 +273,7 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Tap on Song Two in the playlist
       final songTwoFinder = find.text('Song Two');

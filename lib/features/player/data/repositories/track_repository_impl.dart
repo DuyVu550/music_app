@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
@@ -44,7 +45,7 @@ class TrackRepositoryImpl implements TrackRepository {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching tracks from Branium API: $e');
+      debugPrint('Error fetching tracks from Branium API: $e');
     }
 
     // Fetch Gist API
@@ -112,7 +113,7 @@ class TrackRepositoryImpl implements TrackRepository {
         }
       }
     } catch (e) {
-      print('Error fetching tracks from Gist: $e');
+      debugPrint('Error fetching tracks from Gist: $e');
     }
 
     _cachedTracks = [...braniumTracks, ...gistTracks];

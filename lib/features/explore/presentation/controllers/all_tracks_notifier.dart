@@ -1,18 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../player/domain/entities/track.dart';
-import 'featured_tracks_notifier.dart';
+import 'package:music_app/features/player/domain/repositories/track_repository.dart';
 
 class AllTracksNotifier extends AsyncNotifier<List<Track>> {
   @override
   Future<List<Track>> build() async {
-    final repo = ref.watch(featuredTrackRepositoryProvider);
+    final repo = ref.watch(trackRepositoryProvider);
     return repo.getAllTracks();
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final repo = ref.read(featuredTrackRepositoryProvider);
+      final repo = ref.read(trackRepositoryProvider);
       return repo.getAllTracks();
     });
   }

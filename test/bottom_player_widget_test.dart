@@ -23,6 +23,7 @@ class FakePlayerNotifier extends PlayerNotifier {
     );
   }
 
+  @override
   void togglePlay() {
     state = AsyncData(
       state.value!.copyWith(isPlaying: !state.value!.isPlaying),

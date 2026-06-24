@@ -1,4 +1,10 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/repositories/track_repository_impl.dart';
 import '../entities/track.dart';
+
+final trackRepositoryProvider = Provider<TrackRepository>((ref) {
+  return TrackRepositoryImpl();
+});
 
 abstract class TrackRepository {
   Future<List<Track>> getPopularTracks();

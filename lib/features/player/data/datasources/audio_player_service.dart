@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,26 +21,28 @@ class AudioPlayerService {
 
   Future<void> setPlaylist(List<Track> tracks, {int initialIndex = 0}) async {
     try {
-      final audioSource = ConcatenatingAudioSource(
-        children: tracks.map((track) {
-          return AudioSource.uri(
-            Uri.parse(track.url),
-            tag: MediaItem(
-              id: track.id,
-              album: track.albumId,
-              title: track.title,
-              artist: track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
-              artUri: track.coverUrl != null && track.coverUrl!.startsWith('http') 
-                  ? Uri.parse(track.coverUrl!) 
-                  : null,
-            ),
-          );
-        }).toList(),
+      final audioSources = tracks.map((track) {
+        return AudioSource.uri(
+          Uri.parse(track.url),
+          tag: MediaItem(
+            id: track.id,
+            album: track.albumId,
+            title: track.title,
+            artist: track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
+            artUri: track.coverUrl != null && track.coverUrl!.startsWith('http') 
+                ? Uri.parse(track.coverUrl!) 
+                : null,
+          ),
+        );
+      }).toList();
+      
+      await _audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(children: audioSources),
+        initialIndex: initialIndex,
       );
-      await _audioPlayer.setAudioSource(audioSource, initialIndex: initialIndex);
       await _audioPlayer.play();
     } catch (e) {
-      print("Error playing audio playlist: $e");
+      debugPrint("Error playing audio playlist: $e");
     }
   }
 

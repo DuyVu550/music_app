@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:music_app/features/player/data/repositories/track_repository_impl.dart';
+
 import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
 
@@ -8,7 +8,7 @@ import 'package:music_app/features/player/domain/repositories/track_repository.d
 class FeaturedTracksNotifier extends AsyncNotifier<List<Track>> {
   @override
   Future<List<Track>> build() async {
-    final repo = ref.watch(featuredTrackRepositoryProvider);
+    final repo = ref.watch(trackRepositoryProvider);
     return repo.getFeaturedTracks();
   }
 
@@ -16,16 +16,12 @@ class FeaturedTracksNotifier extends AsyncNotifier<List<Track>> {
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final repo = ref.read(featuredTrackRepositoryProvider);
+      final repo = ref.read(trackRepositoryProvider);
       return repo.getFeaturedTracks();
     });
   }
 }
 
-/// Provider cho TrackRepository dùng trong featured tracks.
-final featuredTrackRepositoryProvider = Provider<TrackRepository>((ref) {
-  return TrackRepositoryImpl();
-});
 
 /// Provider chính cho danh sách featured tracks.
 final featuredTracksProvider =

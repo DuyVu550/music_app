@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:music_app/features/player/domain/repositories/track_repository.dart';
 import '../../../player/domain/entities/track.dart';
 import '../../../player/presentation/controllers/player_notifier.dart';
 import '../controllers/featured_tracks_notifier.dart';
@@ -13,6 +15,9 @@ import 'popular_songs_page.dart';
 import 'new_songs_page.dart';
 import '../../../player/presentation/pages/player_page.dart';
 import '../../../../core/utils/format_utils.dart';
+import '../../../auth/presentation/controllers/auth_notifier.dart';
+import '../../../auth/presentation/pages/change_password_page.dart';
+import '../../../auth/presentation/pages/profile_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -59,11 +64,37 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF16162A),
+        title: const Text('Đăng xuất', style: TextStyle(color: Colors.white)),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất không?', style: TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(authNotifierProvider.notifier).logout();
+            },
+            child: const Text('Đăng xuất', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final featuredAsync = ref.watch(featuredTracksProvider);
     final popularAsync = ref.watch(popularTracksProvider);
     final newTracksAsync = ref.watch(newTracksProvider);
+    final authState = ref.watch(authNotifierProvider);
+    final user = authState.value;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F1E),
@@ -78,9 +109,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Image.asset('assets/images/logo.png', width: 60, height: 60),
+                  if (user != null && user.photoUrl != null && user.photoUrl!.isNotEmpty)
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundImage: MemoryImage(base64Decode(user.photoUrl!)),
+                    )
+                  else
+                    Image.asset('assets/images/logo.png', width: 60, height: 60),
                   const SizedBox(height: 12),
-                  const Text('Harmonix Music', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(user?.name ?? 'Harmonix Music', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -122,6 +159,31 @@ class _HomePageState extends ConsumerState<HomePage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const NewSongsPage()));
+              },
+            ),
+            const Divider(color: Colors.white24),
+            ListTile(
+              leading: const Icon(Icons.person_rounded, color: Colors.cyanAccent),
+              title: const Text('Thông tin cá nhân', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.password_rounded, color: Colors.cyanAccent),
+              title: const Text('Đổi mật khẩu', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
+              title: const Text('Đăng xuất', style: TextStyle(color: Colors.redAccent)),
+              onTap: () {
+                Navigator.pop(context);
+                _showLogoutDialog(context, ref);
               },
             ),
           ],
