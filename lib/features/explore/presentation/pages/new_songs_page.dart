@@ -5,6 +5,7 @@ import '../../../player/domain/entities/track.dart';
 import '../controllers/new_tracks_notifier.dart';
 import '../../../player/presentation/pages/player_page.dart';
 import '../../../../core/utils/format_utils.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 
 class NewSongsPage extends ConsumerWidget {
   const NewSongsPage({super.key});
@@ -162,6 +163,7 @@ class NewSongsPage extends ConsumerWidget {
                     ],
                   ),
                 ),
+                FavoriteButton(trackId: currentTrack.id, size: 24),
                 IconButton(
                   icon: const Icon(Icons.skip_previous_rounded, color: Colors.white),
                   onPressed: () {

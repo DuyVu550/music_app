@@ -17,7 +17,7 @@ class AudioPlayerService {
   Stream<Duration> get positionStream => _audioPlayer.positionStream;
   Stream<Duration?> get durationStream => _audioPlayer.durationStream;
   Stream<PlayerState> get playerStateStream => _audioPlayer.playerStateStream;
-  Stream<int?> get currentIndexStream => _audioPlayer.currentIndexStream;
+  Stream<SequenceState?> get sequenceStateStream => _audioPlayer.sequenceStateStream;
 
   Future<void> setPlaylist(List<Track> tracks, {int initialIndex = 0}) async {
     try {
@@ -36,6 +36,7 @@ class AudioPlayerService {
         );
       }).toList();
       
+      await _audioPlayer.stop();
       await _audioPlayer.setAudioSource(
         ConcatenatingAudioSource(children: audioSources),
         initialIndex: initialIndex,

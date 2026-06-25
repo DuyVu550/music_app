@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/track.dart';
 import '../controllers/player_notifier.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 
 class PlayerPage extends ConsumerWidget {
   const PlayerPage({super.key});
@@ -58,12 +59,21 @@ class PlayerPage extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 32.0),
                         child: Column(
                           children: [
-                            Text(
-                              track.title,
-                              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 32), // Balance spacing
+                                Expanded(
+                                  child: Text(
+                                    track.title,
+                                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                FavoriteButton(trackId: track.id, size: 28),
+                              ],
                             ),
                             const SizedBox(height: 6),
                             Text(

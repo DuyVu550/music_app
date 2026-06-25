@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/app_feedback.dart';
 import '../../data/repositories/feedback_repository_impl.dart';
+import '../../../auth/presentation/controllers/auth_notifier.dart';
 
 final feedbackNotifierProvider = AsyncNotifierProvider.autoDispose<FeedbackNotifier, void>(() {
   return FeedbackNotifier();
@@ -18,7 +19,15 @@ class FeedbackNotifier extends AsyncNotifier<void> {
     
     try {
       final repository = ref.read(feedbackRepositoryProvider);
-      final feedback = AppFeedback(rating: rating, comment: comment);
+      final authState = ref.read(authNotifierProvider);
+      final userId = authState.value?.id;
+
+      final feedback = AppFeedback(
+        userId: userId,
+        rating: rating, 
+        comment: comment,
+        createdAt: DateTime.now(),
+      );
       
       await repository.submitFeedback(feedback);
       state = const AsyncData(null);

@@ -18,6 +18,8 @@ import '../../../../core/utils/format_utils.dart';
 import '../../../auth/presentation/controllers/auth_notifier.dart';
 import '../../../auth/presentation/pages/change_password_page.dart';
 import '../../../auth/presentation/pages/profile_page.dart';
+import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:music_app/features/favorites/presentation/pages/favorite_songs_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -159,6 +161,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const NewSongsPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite_rounded, color: Colors.redAccent),
+              title: const Text('Bài hát yêu thích', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const FavoriteSongsPage()));
               },
             ),
             const Divider(color: Colors.white24),
@@ -802,6 +812,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ],
                   ),
                 ),
+                FavoriteButton(trackId: currentTrack.id, size: 24),
                 IconButton(
                   icon: const Icon(Icons.skip_previous_rounded, color: Colors.white),
                   onPressed: () {

@@ -39,9 +39,26 @@ class FeedbackManagementPage extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              fb.userEmail,
+                              fb.contactEmail.isNotEmpty ? fb.contactEmail : 'Ẩn danh',
                               style: const TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orangeAccent.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.star, color: Colors.orangeAccent, size: 16),
+                                const SizedBox(width: 4),
+                                Text(
+                                  fb.rating.toStringAsFixed(1),
+                                  style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
                           ),
                           IconButton(
@@ -49,13 +66,39 @@ class FeedbackManagementPage extends ConsumerWidget {
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: () {
-                              ref.read(adminControllerProvider).deleteFeedback(fb.id);
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: const Color(0xFF1A1A2E),
+                                  title: const Text('Xác nhận xoá', style: TextStyle(color: Colors.white)),
+                                  content: const Text('Bạn có chắc chắn muốn xoá phản hồi này không?', style: TextStyle(color: Colors.white70)),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Hủy', style: TextStyle(color: Colors.white54)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        ref.read(adminControllerProvider).deleteFeedback(fb.id);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Đã xoá phản hồi'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('Xoá', style: TextStyle(color: Colors.redAccent)),
+                                    ),
+                                  ],
+                                ),
+                              );
                             },
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(fb.content, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                      Text(fb.comment, style: const TextStyle(color: Colors.white, fontSize: 16)),
                       const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.bottomRight,

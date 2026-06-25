@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
 
@@ -115,8 +116,27 @@ class TrackRepositoryImpl implements TrackRepository {
     } catch (e) {
       debugPrint('Error fetching tracks from Gist: $e');
     }
+    List<Track> firestoreTracks = [];
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('songs').get();
+      firestoreTracks = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Track(
+          id: doc.id,
+          title: data['title']?.toString() ?? 'Unknown',
+          url: data['audioUrl']?.toString() ?? '',
+          albumId: 'Admin Upload',
+          artistIds: [data['artist']?.toString() ?? 'Unknown Artist'],
+          durationMs: 0,
+          coverUrl: (data['coverUrl']?.toString().isEmpty ?? true) ? null : data['coverUrl']?.toString(),
+          listeners: 0,
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching tracks from Firestore: $e');
+    }
 
-    _cachedTracks = [...braniumTracks, ...gistTracks];
+    _cachedTracks = [...firestoreTracks, ...braniumTracks, ...gistTracks];
   }
 
   @override

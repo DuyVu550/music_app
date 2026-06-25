@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/app_feedback_dto.dart';
 
 abstract class FeedbackRemoteDataSource {
@@ -5,15 +6,25 @@ abstract class FeedbackRemoteDataSource {
 }
 
 class FeedbackRemoteDataSourceImpl implements FeedbackRemoteDataSource {
+  final FirebaseFirestore _firestore;
+
+  FeedbackRemoteDataSourceImpl({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
+
   @override
   Future<void> submitFeedback(AppFeedbackDto feedbackDto) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
+    final docRef = _firestore.collection('feedbacks').doc();
     
-    // Here we would normally use ApiClient or Dio to send data:
-    // await apiClient.post('/api/feedbacks', data: feedbackDto.toJson());
-    
-    // Simulated successful submission
-    return;
+    // Convert DTO to JSON and add server timestamp if createdAt is null
+    final data = feedbackDto.toJson();
+    data['id'] = docRef.id;
+    if (data['createdAt'] == null) {
+      data['createdAt'] = FieldValue.serverTimestamp();
+    } else {
+      // Ensure createdAt is stored as Timestamp in Firestore
+      data['createdAt'] = Timestamp.fromDate(feedbackDto.createdAt!);
+    }
+
+    await docRef.set(data);
   }
 }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppFeedbackDto {
 
- double get rating; String get comment; String get contactEmail;
+ String? get id; String? get userId; double get rating; String get comment; String get contactEmail; DateTime? get createdAt;
 /// Create a copy of AppFeedbackDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $AppFeedbackDtoCopyWith<AppFeedbackDto> get copyWith => _$AppFeedbackDtoCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppFeedbackDto&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppFeedbackDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rating,comment,contactEmail);
+int get hashCode => Object.hash(runtimeType,id,userId,rating,comment,contactEmail,createdAt);
 
 @override
 String toString() {
-  return 'AppFeedbackDto(rating: $rating, comment: $comment, contactEmail: $contactEmail)';
+  return 'AppFeedbackDto(id: $id, userId: $userId, rating: $rating, comment: $comment, contactEmail: $contactEmail, createdAt: $createdAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $AppFeedbackDtoCopyWith<$Res>  {
   factory $AppFeedbackDtoCopyWith(AppFeedbackDto value, $Res Function(AppFeedbackDto) _then) = _$AppFeedbackDtoCopyWithImpl;
 @useResult
 $Res call({
- double rating, String comment, String contactEmail
+ String? id, String? userId, double rating, String comment, String contactEmail, DateTime? createdAt
 });
 
 
@@ -65,12 +65,15 @@ class _$AppFeedbackDtoCopyWithImpl<$Res>
 
 /// Create a copy of AppFeedbackDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rating = null,Object? comment = null,Object? contactEmail = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? userId = freezed,Object? rating = null,Object? comment = null,Object? contactEmail = null,Object? createdAt = freezed,}) {
   return _then(_self.copyWith(
-rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as double,comment: null == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
 as String,contactEmail: null == contactEmail ? _self.contactEmail : contactEmail // ignore: cast_nullable_to_non_nullable
-as String,
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -155,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double rating,  String comment,  String contactEmail)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? userId,  double rating,  String comment,  String contactEmail,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppFeedbackDto() when $default != null:
-return $default(_that.rating,_that.comment,_that.contactEmail);case _:
+return $default(_that.id,_that.userId,_that.rating,_that.comment,_that.contactEmail,_that.createdAt);case _:
   return orElse();
 
 }
@@ -176,10 +179,10 @@ return $default(_that.rating,_that.comment,_that.contactEmail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double rating,  String comment,  String contactEmail)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? userId,  double rating,  String comment,  String contactEmail,  DateTime? createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _AppFeedbackDto():
-return $default(_that.rating,_that.comment,_that.contactEmail);case _:
+return $default(_that.id,_that.userId,_that.rating,_that.comment,_that.contactEmail,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +199,10 @@ return $default(_that.rating,_that.comment,_that.contactEmail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double rating,  String comment,  String contactEmail)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? userId,  double rating,  String comment,  String contactEmail,  DateTime? createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _AppFeedbackDto() when $default != null:
-return $default(_that.rating,_that.comment,_that.contactEmail);case _:
+return $default(_that.id,_that.userId,_that.rating,_that.comment,_that.contactEmail,_that.createdAt);case _:
   return null;
 
 }
@@ -210,13 +213,16 @@ return $default(_that.rating,_that.comment,_that.contactEmail);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _AppFeedbackDto implements AppFeedbackDto {
-  const _AppFeedbackDto({required this.rating, required this.comment, this.contactEmail = ''});
+class _AppFeedbackDto extends AppFeedbackDto {
+  const _AppFeedbackDto({this.id, this.userId, required this.rating, required this.comment, this.contactEmail = '', this.createdAt}): super._();
   factory _AppFeedbackDto.fromJson(Map<String, dynamic> json) => _$AppFeedbackDtoFromJson(json);
 
+@override final  String? id;
+@override final  String? userId;
 @override final  double rating;
 @override final  String comment;
 @override@JsonKey() final  String contactEmail;
+@override final  DateTime? createdAt;
 
 /// Create a copy of AppFeedbackDto
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppFeedbackDto&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppFeedbackDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.contactEmail, contactEmail) || other.contactEmail == contactEmail)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rating,comment,contactEmail);
+int get hashCode => Object.hash(runtimeType,id,userId,rating,comment,contactEmail,createdAt);
 
 @override
 String toString() {
-  return 'AppFeedbackDto(rating: $rating, comment: $comment, contactEmail: $contactEmail)';
+  return 'AppFeedbackDto(id: $id, userId: $userId, rating: $rating, comment: $comment, contactEmail: $contactEmail, createdAt: $createdAt)';
 }
 
 
@@ -251,7 +257,7 @@ abstract mixin class _$AppFeedbackDtoCopyWith<$Res> implements $AppFeedbackDtoCo
   factory _$AppFeedbackDtoCopyWith(_AppFeedbackDto value, $Res Function(_AppFeedbackDto) _then) = __$AppFeedbackDtoCopyWithImpl;
 @override @useResult
 $Res call({
- double rating, String comment, String contactEmail
+ String? id, String? userId, double rating, String comment, String contactEmail, DateTime? createdAt
 });
 
 
@@ -268,12 +274,15 @@ class __$AppFeedbackDtoCopyWithImpl<$Res>
 
 /// Create a copy of AppFeedbackDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rating = null,Object? comment = null,Object? contactEmail = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? userId = freezed,Object? rating = null,Object? comment = null,Object? contactEmail = null,Object? createdAt = freezed,}) {
   return _then(_AppFeedbackDto(
-rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
 as double,comment: null == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
 as String,contactEmail: null == contactEmail ? _self.contactEmail : contactEmail // ignore: cast_nullable_to_non_nullable
-as String,
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

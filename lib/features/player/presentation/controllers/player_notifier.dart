@@ -41,13 +41,24 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
       }
     });
 
-    final indexSub = audioService.currentIndexStream.listen((index) {
+    final indexSub = audioService.sequenceStateStream.listen((sequenceState) {
       final current = state.value;
-      if (current != null && index != null && current.playlist.isNotEmpty) {
-        if (index >= 0 && index < current.playlist.length) {
-          final newTrack = current.playlist[index];
-          if (current.currentTrack?.id != newTrack.id) {
-            state = AsyncData(current.copyWith(currentTrack: newTrack));
+      if (current != null && sequenceState != null) {
+        final currentItem = sequenceState.currentSource?.tag;
+        if (currentItem != null) {
+          // just_audio uses MediaItem for the tag
+          // But we don't have access to just_audio_background MediaItem directly here without importing it
+          // Wait, we need to import 'package:just_audio_background/just_audio_background.dart';
+          // Actually, we can just dynamic cast it if we want. Let's see if we can do currentItem.id
+          final newTrackId = (currentItem as dynamic).id;
+          if (current.currentTrack?.id != newTrackId) {
+            // Find the track in the playlist
+            try {
+              final newTrack = current.playlist.firstWhere((t) => t.id == newTrackId);
+              state = AsyncData(current.copyWith(currentTrack: newTrack));
+            } catch (e) {
+              // Not found
+            }
           }
         }
       }

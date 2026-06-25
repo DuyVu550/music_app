@@ -1,0 +1,10 @@
+{
+  "inherits": [
+    {
+      "path": "https://github.com/DietrichGebert/ponytail"
+    },
+    {
+      "path": "https://github.com/obra/superpowers"
+    }
+  ]
+}
