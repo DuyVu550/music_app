@@ -76,25 +76,23 @@ class FakeAudioPlayerService implements AudioPlayerService {
   final _durationController = StreamController<Duration?>.broadcast();
   final _stateController = StreamController<ja.PlayerState>.broadcast();
   final _currentIndexController = StreamController<int?>.broadcast();
-  final _sequenceStateController = StreamController<ja.SequenceState?>.broadcast();
+  final _sequenceStateController =
+      StreamController<ja.SequenceState?>.broadcast();
   final _shuffleController = StreamController<bool>.broadcast();
   final _loopModeController = StreamController<ja.LoopMode>.broadcast();
-  
+
   bool _isPlaying = false;
   int? _currentIndex;
   List<Track> _tracks = [];
-  bool _shuffleEnabled = false;
-  ja.LoopMode _loopMode = ja.LoopMode.off;
 
   void _emitState() {
-    _stateController.add(ja.PlayerState(
-      _isPlaying,
-      ja.ProcessingState.ready,
-    ));
+    _stateController.add(ja.PlayerState(_isPlaying, ja.ProcessingState.ready));
   }
 
   void _emitSequenceState() {
-    if (_currentIndex != null && _currentIndex! >= 0 && _currentIndex! < _tracks.length) {
+    if (_currentIndex != null &&
+        _currentIndex! >= 0 &&
+        _currentIndex! < _tracks.length) {
       final track = _tracks[_currentIndex!];
       final fakeTag = FakeTag(track.id);
       final fakeSource = FakeIndexedAudioSource(fakeTag);
@@ -112,12 +110,13 @@ class FakeAudioPlayerService implements AudioPlayerService {
   @override
   Stream<ja.PlayerState> get playerStateStream => _stateController.stream;
   @override
-  Stream<ja.SequenceState?> get sequenceStateStream => _sequenceStateController.stream;
+  Stream<ja.SequenceState?> get sequenceStateStream =>
+      _sequenceStateController.stream;
   @override
   Stream<bool> get shuffleModeEnabledStream => _shuffleController.stream;
   @override
   Stream<ja.LoopMode> get loopModeStream => _loopModeController.stream;
-  
+
   Stream<int?> get currentIndexStream => _currentIndexController.stream;
 
   @override
@@ -222,7 +221,6 @@ class FakeAudioPlayerService implements AudioPlayerService {
 
   @override
   void setShuffleModeEnabled(bool enabled) {
-    _shuffleEnabled = enabled;
     _shuffleController.add(enabled);
   }
 
@@ -240,7 +238,6 @@ class FakeAudioPlayerService implements AudioPlayerService {
         jaMode = ja.LoopMode.one;
         break;
     }
-    _loopMode = jaMode;
     _loopModeController.add(jaMode);
   }
 
@@ -285,8 +282,12 @@ void main() {
 
       container = ProviderContainer(
         overrides: [
-          trackRepositoryProvider.overrideWithValue(FakeTrackRepository(mockPlaylist)),
-          audioPlayerServiceProvider.overrideWithValue(FakeAudioPlayerService()),
+          trackRepositoryProvider.overrideWithValue(
+            FakeTrackRepository(mockPlaylist),
+          ),
+          audioPlayerServiceProvider.overrideWithValue(
+            FakeAudioPlayerService(),
+          ),
         ],
       );
     });
@@ -307,7 +308,7 @@ void main() {
       final notifier = container.read(playerNotifierProvider.notifier);
 
       notifier.playTrack(mockPlaylist[1]);
-      
+
       final updatedState = container.read(playerNotifierProvider).value;
       expect(updatedState?.currentTrack, equals(mockPlaylist[1]));
       expect(updatedState?.isPlaying, isTrue);
@@ -332,11 +333,17 @@ void main() {
       final notifier = container.read(playerNotifierProvider.notifier);
 
       notifier.playTrack(mockPlaylist[0]);
-      expect(container.read(playerNotifierProvider).value?.currentTrack?.id, equals('1'));
+      expect(
+        container.read(playerNotifierProvider).value?.currentTrack?.id,
+        equals('1'),
+      );
 
       notifier.nextTrack();
       await Future.delayed(Duration.zero);
-      expect(container.read(playerNotifierProvider).value?.currentTrack?.id, equals('2'));
+      expect(
+        container.read(playerNotifierProvider).value?.currentTrack?.id,
+        equals('2'),
+      );
       expect(container.read(playerNotifierProvider).value?.isPlaying, isTrue);
     });
 
@@ -345,29 +352,44 @@ void main() {
       final notifier = container.read(playerNotifierProvider.notifier);
 
       notifier.playTrack(mockPlaylist[1]);
-      expect(container.read(playerNotifierProvider).value?.currentTrack?.id, equals('2'));
+      expect(
+        container.read(playerNotifierProvider).value?.currentTrack?.id,
+        equals('2'),
+      );
 
       notifier.previousTrack();
       await Future.delayed(Duration.zero);
-      expect(container.read(playerNotifierProvider).value?.currentTrack?.id, equals('1'));
+      expect(
+        container.read(playerNotifierProvider).value?.currentTrack?.id,
+        equals('1'),
+      );
       expect(container.read(playerNotifierProvider).value?.isPlaying, isTrue);
     });
 
-    test('stop clears current track, resets position, and stops playing', () async {
-      await container.read(playerNotifierProvider.future);
-      final notifier = container.read(playerNotifierProvider.notifier);
+    test(
+      'stop clears current track, resets position, and stops playing',
+      () async {
+        await container.read(playerNotifierProvider.future);
+        final notifier = container.read(playerNotifierProvider.notifier);
 
-      notifier.playTrack(mockPlaylist[0]);
-      notifier.updatePosition(const Duration(seconds: 45));
-      expect(container.read(playerNotifierProvider).value?.currentTrack, isNotNull);
-      expect(container.read(playerNotifierProvider).value?.isPlaying, isTrue);
-      expect(container.read(playerNotifierProvider).value?.position, equals(const Duration(seconds: 45)));
+        notifier.playTrack(mockPlaylist[0]);
+        notifier.updatePosition(const Duration(seconds: 45));
+        expect(
+          container.read(playerNotifierProvider).value?.currentTrack,
+          isNotNull,
+        );
+        expect(container.read(playerNotifierProvider).value?.isPlaying, isTrue);
+        expect(
+          container.read(playerNotifierProvider).value?.position,
+          equals(const Duration(seconds: 45)),
+        );
 
-      notifier.stop();
-      final stoppedState = container.read(playerNotifierProvider).value;
-      expect(stoppedState?.currentTrack, isNull);
-      expect(stoppedState?.isPlaying, isFalse);
-      expect(stoppedState?.position, equals(Duration.zero));
-    });
+        notifier.stop();
+        final stoppedState = container.read(playerNotifierProvider).value;
+        expect(stoppedState?.currentTrack, isNull);
+        expect(stoppedState?.isPlaying, isFalse);
+        expect(stoppedState?.position, equals(Duration.zero));
+      },
+    );
   });
 }

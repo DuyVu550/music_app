@@ -116,22 +116,23 @@ class SongOptionsBottomSheet extends ConsumerWidget {
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () async {
+                final messenger = ScaffoldMessenger.of(context);
                 Navigator.pop(context);
                 try {
                   final url = Uri.parse(track.url);
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url, mode: LaunchMode.externalApplication);
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       const SnackBar(
                         content: Text('Không thể tải bài hát này.'),
                       ),
                     );
                   }
                 } catch (e) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Lỗi khi tải: $e')));
+                  messenger.showSnackBar(
+                    SnackBar(content: Text('Lỗi khi tải: $e')),
+                  );
                 }
               },
             ),

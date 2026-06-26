@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../player/presentation/controllers/player_notifier.dart';
 import '../../../player/domain/entities/track.dart';
 import '../controllers/all_tracks_notifier.dart';
-import '../../../player/presentation/pages/player_page.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 
@@ -19,7 +18,10 @@ class AllSongsPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F1E),
       appBar: AppBar(
-        title: const Text('Tất cả bài hát', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Tất cả bài hát',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -28,7 +30,10 @@ class AllSongsPage extends ConsumerWidget {
         data: (tracks) {
           if (tracks.isEmpty) {
             return const Center(
-              child: Text('Không có bài hát nào.', style: TextStyle(color: Colors.white70)),
+              child: Text(
+                'Không có bài hát nào.',
+                style: TextStyle(color: Colors.white70),
+              ),
             );
           }
           return ListView.builder(
@@ -40,14 +45,21 @@ class AllSongsPage extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
-        error: (err, stack) => Center(child: Text('Lỗi: $err', style: const TextStyle(color: Colors.red))),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Colors.cyanAccent),
+        ),
+        error: (err, stack) => Center(
+          child: Text('Lỗi: $err', style: const TextStyle(color: Colors.red)),
+        ),
       ),
     );
   }
 
   Widget _buildSongTile(BuildContext context, WidgetRef ref, Track track) {
-    final hasNetworkImage = track.coverUrl != null && track.coverUrl!.isNotEmpty && track.coverUrl!.startsWith('http');
+    final hasNetworkImage =
+        track.coverUrl != null &&
+        track.coverUrl!.isNotEmpty &&
+        track.coverUrl!.startsWith('http');
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -82,24 +94,39 @@ class AllSongsPage extends ConsumerWidget {
           ),
           title: Text(
             track.title,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           subtitle: Row(
             children: [
               Expanded(
                 child: Text(
-                  track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
+                  track.artistIds.isNotEmpty
+                      ? track.artistIds.first
+                      : 'Unknown Artist',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontSize: 12,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.headset_rounded, size: 12, color: Colors.white.withValues(alpha: 0.4)),
+              Icon(
+                Icons.headset_rounded,
+                size: 12,
+                color: Colors.white.withValues(alpha: 0.4),
+              ),
               const SizedBox(width: 4),
               Text(
                 FormatUtils.formatListeners(track.listeners),
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 11,
+                ),
               ),
             ],
           ),

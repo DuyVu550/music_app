@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../player/presentation/controllers/player_notifier.dart';
 import '../../../player/domain/entities/track.dart';
 import '../controllers/new_tracks_notifier.dart';
-import '../../../player/presentation/pages/player_page.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
