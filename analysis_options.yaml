@@ -75,6 +75,13 @@
 #      + Tìm kiếm bài hát theo tên trong trang quản lý.
 #      + Quản lý danh sách feedback (phản hồi, đóng góp ý kiến) của người dùng.
 #
+# 7.2. Các tính năng nâng cấp VIP (VIP Features - Dự kiến triển khai):
+#    - Role Quản trị viên (Admin):
+#      + Quản lý Category (Thể loại): Thêm, sửa, xóa, tìm kiếm, hiển thị danh sách Category.
+#      + Quản lý Artist (Nghệ sĩ): Thêm, sửa, xóa, tìm kiếm, hiển thị danh sách Artist.
+#    - Hệ thống thông báo (Push Notification):
+#      + Hiển thị thông báo đẩy (Local/Push Notification) thông báo tiến trình download bài hát trực tiếp trong ứng dụng.
+#
 # 8. Lưu ý Code Style (Dành cho AI & Developers):
 #    - Viết code tường minh, dễ hiểu, tránh các cú pháp viết tắt quá mức gây khó hiểu.
 #    - Luôn viết comment giải thích ý đồ thiết kế với các hàm xử lý logic phức tạp.
