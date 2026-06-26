@@ -29,7 +29,7 @@ class TrackRepositoryImpl implements TrackRepository {
 
     // Fetch Branium API
     try {
-      final response = await _dio.get('https://thantrieu.com/resources/braniumapis/songs.json');
+      final response = await _dio.get('https://thantrieu.com/resources/braniumapis/songs.json').timeout(const Duration(seconds: 3));
       final data = response.data;
       final List<dynamic> songsJson = (data is Map) ? data['songs'] : [];
       braniumTracks = songsJson.map((json) {
@@ -57,7 +57,7 @@ class TrackRepositoryImpl implements TrackRepository {
 
     // Fetch Gist API
     try {
-      final response = await _dio.get('https://gist.githubusercontent.com/jasonbaldridge/2668632/raw/e56320c485a33c339791a25cc107bf70e7f1d763/music.json');
+      final response = await _dio.get('https://gist.githubusercontent.com/jasonbaldridge/2668632/raw/e56320c485a33c339791a25cc107bf70e7f1d763/music.json').timeout(const Duration(seconds: 3));
       var gistData = response.data;
       if (gistData is String) {
         gistData = jsonDecode(gistData);
@@ -124,7 +124,7 @@ class TrackRepositoryImpl implements TrackRepository {
     }
     List<Track> firestoreTracks = [];
     try {
-      final snapshot = await FirebaseFirestore.instance.collection('songs').get();
+      final snapshot = await FirebaseFirestore.instance.collection('songs').get().timeout(const Duration(seconds: 3));
       firestoreTracks = snapshot.docs.map((doc) {
         final data = doc.data();
         return Track(
@@ -255,8 +255,7 @@ class TrackRepositoryImpl implements TrackRepository {
 
   @override
   Future<List<Category>> getCategories() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return const [
+    const defaults = [
       Category(id: 'c1', name: 'Pop', imageUrl: 'https://picsum.photos/seed/pop/300/300'),
       Category(id: 'c2', name: 'Rock', imageUrl: 'https://picsum.photos/seed/rock/300/300'),
       Category(id: 'c3', name: 'Hip Hop', imageUrl: 'https://picsum.photos/seed/hiphop/300/300'),
@@ -264,10 +263,54 @@ class TrackRepositoryImpl implements TrackRepository {
       Category(id: 'c5', name: 'Jazz', imageUrl: 'https://picsum.photos/seed/jazz/300/300'),
       Category(id: 'c6', name: 'Classical', imageUrl: 'https://picsum.photos/seed/classical/300/300'),
     ];
+
+    if (Firebase.apps.isEmpty) {
+      return defaults;
+    }
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .get()
+          .timeout(const Duration(seconds: 3));
+      if (snapshot.docs.isEmpty) {
+        return defaults;
+      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Category.fromJson(data);
+      }).toList();
+    } catch (e) {
+      debugPrint('Error getting categories: $e');
+      return defaults;
+    }
   }
 
   @override
   Future<List<Artist>> getArtists() async {
+    if (Firebase.apps.isEmpty) {
+      return getArtistsStatic();
+    }
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('artists')
+          .get()
+          .timeout(const Duration(seconds: 3));
+      if (snapshot.docs.isEmpty) {
+        return getArtistsStatic();
+      }
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Artist.fromJson(data);
+      }).toList();
+    } catch (e) {
+      debugPrint('Error getting artists: $e');
+      return getArtistsStatic();
+    }
+  }
+
+  Future<List<Artist>> getArtistsStatic() async {
     await _fetchAllTracksIfNeeded();
     if (_cachedArtists == null) {
       final artistNames = <String>{};
@@ -282,7 +325,6 @@ class TrackRepositoryImpl implements TrackRepository {
         );
       }).toList();
     }
-    // Return top 10 unique artists for home screen display
     return _cachedArtists!.take(10).toList();
   }
 

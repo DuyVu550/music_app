@@ -5,6 +5,8 @@ import '../../../auth/presentation/controllers/auth_notifier.dart';
 import '../../../auth/presentation/pages/change_password_page.dart';
 import '../../../auth/presentation/pages/profile_page.dart';
 import 'song_management_page.dart';
+import 'category_management_page.dart';
+import 'artist_management_page.dart';
 import 'feedback_management_page.dart';
 
 class AdminHomePage extends ConsumerStatefulWidget {
@@ -19,8 +21,25 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
 
   final List<Widget> _pages = const [
     SongManagementPage(),
+    CategoryManagementPage(),
+    ArtistManagementPage(),
     FeedbackManagementPage(),
   ];
+
+  String _getTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'Quản lý Bài hát';
+      case 1:
+        return 'Quản lý Thể loại';
+      case 2:
+        return 'Quản lý Nghệ sĩ';
+      case 3:
+        return 'Phản hồi từ Người dùng';
+      default:
+        return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +48,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentIndex == 0 ? 'Quản lý Bài hát' : 'Phản hồi từ Người dùng'),
+        title: Text(_getTitle(_currentIndex)),
         backgroundColor: const Color(0xFF0F2027),
         elevation: 0,
         actions: [
@@ -80,6 +99,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
             _currentIndex = index;
           });
         },
+        type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFF0F2027),
         selectedItemColor: Colors.cyanAccent,
         unselectedItemColor: Colors.white54,
@@ -87,6 +107,14 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.library_music_rounded),
             label: 'Bài hát',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category_rounded),
+            label: 'Thể loại',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_rounded),
+            label: 'Nghệ sĩ',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.feedback_rounded),

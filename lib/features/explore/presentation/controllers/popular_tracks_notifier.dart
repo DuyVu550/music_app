@@ -2,12 +2,14 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../player/domain/entities/track.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
+import 'package:music_app/features/auth/presentation/controllers/auth_notifier.dart';
 
 class PopularTracksNotifier extends AsyncNotifier<List<Track>> {
   StreamSubscription? _subscription;
 
   @override
   Future<List<Track>> build() async {
+    ref.watch(authNotifierProvider);
     final repo = ref.watch(trackRepositoryProvider);
 
     final completer = Completer<List<Track>>();

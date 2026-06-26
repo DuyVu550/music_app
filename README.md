@@ -54,10 +54,13 @@ Một ứng dụng Music App (nghe nhạc trực tuyến và ngoại tuyến) đ
 - Đăng nhập, đăng ký tài khoản mới, quên mật khẩu, đổi mật khẩu và quản lý thông tin cá nhân (Profile).
 - **Yêu thích (Favorites)**: Đồng bộ danh sách bài hát yêu thích theo thời gian thực cho từng User.
 
-### 👑 Bảng điều khiển Quản trị viên (Admin Panel)
+### 👑 Bảng điều khiển Quản trị viên (Admin Panel - VIP)
 - **Quản lý bài hát (CRUD)**: Cho phép hiển thị danh sách bài hát, thêm bài hát mới, chỉnh sửa thông tin và xóa bài hát trực tiếp.
-- **Tìm kiếm thông minh**: Tìm kiếm bài hát theo tên hoặc nghệ sĩ trong trang quản trị.
+- **Tìm kiếm thông minh**: Tìm kiếm bài hát theo tên hoặc nghệ sĩ trong trang quản lý.
+- **Quản lý Thể loại (CRUD) [VIP]**: Cho phép hiển thị danh sách thể loại nhạc, thêm thể loại mới, chỉnh sửa tên/ảnh và xóa thể loại nhạc trực tiếp.
+- **Quản lý Nghệ sĩ (CRUD) [VIP]**: Cho phép hiển thị danh sách nghệ sĩ, thêm nghệ sĩ mới, chỉnh sửa tên/ảnh và xóa nghệ sĩ trực tiếp.
 - **Quản lý Feedback**: Xem danh sách phản hồi từ người dùng và hỗ trợ xóa phản hồi.
+- **Tự động Khởi tạo Dữ liệu (Autoseed) [VIP]**: Tự động tạo dữ liệu mẫu cho Thể loại và Nghệ sĩ từ các bài hát hiện có nếu dữ liệu trên Firestore trống.
 
 ### 💬 Phản hồi & Liên hệ (Feedback & Contact)
 - **Feedback**: Gửi đánh giá theo số sao (⭐) kèm ý kiến đóng góp lưu về Firestore.
