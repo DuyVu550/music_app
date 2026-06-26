@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart' as ja;
 import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/presentation/controllers/player_notifier.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
+import 'package:music_app/features/player/domain/entities/player_loop_mode.dart';
 import 'package:music_app/features/player/data/datasources/audio_player_service.dart';
 import 'package:music_app/features/explore/domain/entities/category.dart';
 import 'package:music_app/features/explore/domain/entities/artist.dart';
@@ -76,10 +77,14 @@ class FakeAudioPlayerService implements AudioPlayerService {
   final _stateController = StreamController<ja.PlayerState>.broadcast();
   final _currentIndexController = StreamController<int?>.broadcast();
   final _sequenceStateController = StreamController<ja.SequenceState?>.broadcast();
-
+  final _shuffleController = StreamController<bool>.broadcast();
+  final _loopModeController = StreamController<ja.LoopMode>.broadcast();
+  
   bool _isPlaying = false;
   int? _currentIndex;
   List<Track> _tracks = [];
+  bool _shuffleEnabled = false;
+  ja.LoopMode _loopMode = ja.LoopMode.off;
 
   void _emitState() {
     _stateController.add(ja.PlayerState(
@@ -108,6 +113,10 @@ class FakeAudioPlayerService implements AudioPlayerService {
   Stream<ja.PlayerState> get playerStateStream => _stateController.stream;
   @override
   Stream<ja.SequenceState?> get sequenceStateStream => _sequenceStateController.stream;
+  @override
+  Stream<bool> get shuffleModeEnabledStream => _shuffleController.stream;
+  @override
+  Stream<ja.LoopMode> get loopModeStream => _loopModeController.stream;
   
   Stream<int?> get currentIndexStream => _currentIndexController.stream;
 
@@ -212,12 +221,38 @@ class FakeAudioPlayerService implements AudioPlayerService {
   }
 
   @override
+  void setShuffleModeEnabled(bool enabled) {
+    _shuffleEnabled = enabled;
+    _shuffleController.add(enabled);
+  }
+
+  @override
+  void setLoopMode(PlayerLoopMode mode) {
+    ja.LoopMode jaMode;
+    switch (mode) {
+      case PlayerLoopMode.off:
+        jaMode = ja.LoopMode.off;
+        break;
+      case PlayerLoopMode.all:
+        jaMode = ja.LoopMode.all;
+        break;
+      case PlayerLoopMode.one:
+        jaMode = ja.LoopMode.one;
+        break;
+    }
+    _loopMode = jaMode;
+    _loopModeController.add(jaMode);
+  }
+
+  @override
   void dispose() {
     _positionController.close();
     _durationController.close();
     _stateController.close();
     _currentIndexController.close();
     _sequenceStateController.close();
+    _shuffleController.close();
+    _loopModeController.close();
   }
 }
 

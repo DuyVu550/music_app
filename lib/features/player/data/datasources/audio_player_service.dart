@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/track.dart';
+import '../../domain/entities/player_loop_mode.dart';
 
 final audioPlayerServiceProvider = Provider<AudioPlayerService>((ref) {
   final service = AudioPlayerService();
@@ -19,6 +20,8 @@ class AudioPlayerService {
   Stream<Duration?> get durationStream => _audioPlayer.durationStream;
   Stream<PlayerState> get playerStateStream => _audioPlayer.playerStateStream;
   Stream<SequenceState?> get sequenceStateStream => _audioPlayer.sequenceStateStream;
+  Stream<bool> get shuffleModeEnabledStream => _audioPlayer.shuffleModeEnabledStream;
+  Stream<LoopMode> get loopModeStream => _audioPlayer.loopModeStream;
 
   AudioSource _createAudioSource(Track track) {
     return AudioSource.uri(
@@ -127,6 +130,26 @@ class AudioPlayerService {
 
   void seekToPrevious() {
     _audioPlayer.seekToPrevious();
+  }
+
+  void setShuffleModeEnabled(bool enabled) {
+    _audioPlayer.setShuffleModeEnabled(enabled);
+  }
+
+  void setLoopMode(PlayerLoopMode mode) {
+    LoopMode jaMode;
+    switch (mode) {
+      case PlayerLoopMode.off:
+        jaMode = LoopMode.off;
+        break;
+      case PlayerLoopMode.all:
+        jaMode = LoopMode.all;
+        break;
+      case PlayerLoopMode.one:
+        jaMode = LoopMode.one;
+        break;
+    }
+    _audioPlayer.setLoopMode(jaMode);
   }
 
   void stop() {

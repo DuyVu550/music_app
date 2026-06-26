@@ -3,6 +3,8 @@ import '../../data/datasources/audio_player_service.dart';
 import '../../domain/entities/player_state.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
+import '../../domain/entities/player_loop_mode.dart';
+import 'package:just_audio/just_audio.dart' as ja;
 
 
 class PlayerNotifier extends AsyncNotifier<PlayerState> {
@@ -64,11 +66,41 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
       }
     });
 
+    final shuffleSub = audioService.shuffleModeEnabledStream.listen((enabled) {
+      final current = state.value;
+      if (current != null && current.isShuffleModeEnabled != enabled) {
+        state = AsyncData(current.copyWith(isShuffleModeEnabled: enabled));
+      }
+    });
+
+    final loopSub = audioService.loopModeStream.listen((jaLoopMode) {
+      final current = state.value;
+      if (current != null) {
+        PlayerLoopMode loopMode;
+        switch (jaLoopMode) {
+          case ja.LoopMode.off:
+            loopMode = PlayerLoopMode.off;
+            break;
+          case ja.LoopMode.all:
+            loopMode = PlayerLoopMode.all;
+            break;
+          case ja.LoopMode.one:
+            loopMode = PlayerLoopMode.one;
+            break;
+        }
+        if (current.loopMode != loopMode) {
+          state = AsyncData(current.copyWith(loopMode: loopMode));
+        }
+      }
+    });
+
     ref.onDispose(() {
       posSub.cancel();
       durSub.cancel();
       stateSub.cancel();
       indexSub.cancel();
+      shuffleSub.cancel();
+      loopSub.cancel();
     });
 
     return PlayerState(
@@ -204,6 +236,32 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
             ? (list.isNotEmpty ? list.first : null)
             : current.currentTrack,
       ));
+    }
+  }
+
+  void toggleShuffle() {
+    final current = state.value;
+    if (current != null) {
+      ref.read(audioPlayerServiceProvider).setShuffleModeEnabled(!current.isShuffleModeEnabled);
+    }
+  }
+
+  void cycleLoopMode() {
+    final current = state.value;
+    if (current != null) {
+      PlayerLoopMode nextMode;
+      switch (current.loopMode) {
+        case PlayerLoopMode.off:
+          nextMode = PlayerLoopMode.all;
+          break;
+        case PlayerLoopMode.all:
+          nextMode = PlayerLoopMode.one;
+          break;
+        case PlayerLoopMode.one:
+          nextMode = PlayerLoopMode.off;
+          break;
+      }
+      ref.read(audioPlayerServiceProvider).setLoopMode(nextMode);
     }
   }
 }

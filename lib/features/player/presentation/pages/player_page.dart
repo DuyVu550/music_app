@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/track.dart';
+import '../../domain/entities/player_loop_mode.dart';
 import '../controllers/player_notifier.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 
@@ -88,7 +90,26 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const SizedBox(width: 32), // Balance spacing
+                                IconButton(
+                                  icon: const Icon(Icons.download_rounded, color: Colors.white70, size: 28),
+                                  onPressed: () async {
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    try {
+                                      final url = Uri.parse(track.url);
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                                      } else {
+                                        messenger.showSnackBar(
+                                          const SnackBar(content: Text('Không thể tải bài hát này.')),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      messenger.showSnackBar(
+                                        SnackBar(content: Text('Lỗi khi tải: $e')),
+                                      );
+                                    }
+                                  },
+                                ),
                                 Expanded(
                                   child: Text(
                                     track.title,
@@ -105,6 +126,18 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                             Text(
                               track.artistIds.isNotEmpty ? track.artistIds.first : 'Nghệ sĩ chưa rõ',
                               style: const TextStyle(color: Colors.cyanAccent, fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.headset_rounded, color: Colors.white54, size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${track.listeners.toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} lượt nghe',
+                                  style: const TextStyle(color: Colors.white54, fontSize: 14),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -159,10 +192,20 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Controls
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          IconButton(
+                            iconSize: 28,
+                            icon: Icon(
+                              Icons.shuffle_rounded,
+                              color: state.isShuffleModeEnabled ? Colors.cyanAccent : Colors.white54,
+                            ),
+                            onPressed: () {
+                              ref.read(playerNotifierProvider.notifier).toggleShuffle();
+                            },
+                          ),
+                          const SizedBox(width: 20),
                           IconButton(
                             iconSize: 40,
                             icon: const Icon(Icons.skip_previous_rounded, color: Colors.white),
@@ -195,6 +238,19 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                             icon: const Icon(Icons.skip_next_rounded, color: Colors.white),
                             onPressed: () {
                               ref.read(playerNotifierProvider.notifier).nextTrack();
+                            },
+                          ),
+                          const SizedBox(width: 20),
+                          IconButton(
+                            iconSize: 28,
+                            icon: Icon(
+                              state.loopMode == PlayerLoopMode.one
+                                  ? Icons.repeat_one_rounded
+                                  : Icons.repeat_rounded,
+                              color: state.loopMode != PlayerLoopMode.off ? Colors.cyanAccent : Colors.white54,
+                            ),
+                            onPressed: () {
+                              ref.read(playerNotifierProvider.notifier).cycleLoopMode();
                             },
                           ),
                         ],
@@ -290,7 +346,22 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                                 ),
                                 trailing: isCurrent
                                     ? const Icon(Icons.volume_up, color: Colors.cyanAccent)
-                                    : null,
+                                    : IconButton(
+                                        icon: const Icon(Icons.close_rounded, color: Colors.white54, size: 20),
+                                        onPressed: () {
+                                          final messenger = ScaffoldMessenger.of(context);
+                                          ref.read(playerNotifierProvider.notifier).removeFromQueue(item);
+                                          messenger.showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: const Color(0xFF16162A),
+                                              content: Text(
+                                                'Đã xóa "${item.title}" khỏi danh sách phát.',
+                                                style: const TextStyle(color: Colors.redAccent),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                 onTap: () {
                                   ref.read(playerNotifierProvider.notifier).playTrack(item);
                                 },
