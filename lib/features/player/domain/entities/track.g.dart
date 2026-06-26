@@ -14,6 +14,9 @@ _Track _$TrackFromJson(Map<String, dynamic> json) => _Track(
   artistIds: (json['artistIds'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
+  categoryIds: (json['categoryIds'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
   durationMs: (json['durationMs'] as num?)?.toInt() ?? 0,
   isExplicit: json['isExplicit'] as bool? ?? false,
   coverUrl: json['coverUrl'] as String?,
@@ -26,6 +29,7 @@ Map<String, dynamic> _$TrackToJson(_Track instance) => <String, dynamic>{
   'url': instance.url,
   'albumId': instance.albumId,
   'artistIds': instance.artistIds,
+  'categoryIds': instance.categoryIds,
   'durationMs': instance.durationMs,
   'isExplicit': instance.isExplicit,
   'coverUrl': instance.coverUrl,

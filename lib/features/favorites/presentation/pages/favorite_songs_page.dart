@@ -72,7 +72,7 @@ class FavoriteSongsPage extends ConsumerWidget {
                               width: 56,
                               height: 56,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Image.asset('assets/images/album_placeholder.png', width: 56, height: 56, fit: BoxFit.cover),
+                              errorBuilder: (context, error, stackTrace) => Image.asset('assets/images/album_placeholder.png', width: 56, height: 56, fit: BoxFit.cover),
                             )
                           : Image.asset(
                               'assets/images/album_placeholder.png',

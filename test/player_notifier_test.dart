@@ -6,6 +6,8 @@ import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/presentation/controllers/player_notifier.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
 import 'package:music_app/features/player/data/datasources/audio_player_service.dart';
+import 'package:music_app/features/explore/domain/entities/category.dart';
+import 'package:music_app/features/explore/domain/entities/artist.dart';
 
 class FakeTrackRepository implements TrackRepository {
   final List<Track> tracks;
@@ -25,6 +27,41 @@ class FakeTrackRepository implements TrackRepository {
 
   @override
   Future<List<Track>> getAllTracks() async => tracks;
+
+  @override
+  Future<List<Category>> getCategories() async => [];
+
+  @override
+  Future<List<Artist>> getArtists() async => [];
+
+  @override
+  Future<List<Track>> getTracksByCategory(String categoryId) async => [];
+
+  @override
+  Future<List<Track>> getTracksByArtist(String artistId) async => [];
+}
+
+class FakeSequenceState implements ja.SequenceState {
+  @override
+  final ja.IndexedAudioSource? currentSource;
+  FakeSequenceState(this.currentSource);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class FakeIndexedAudioSource implements ja.IndexedAudioSource {
+  @override
+  final dynamic tag;
+  FakeIndexedAudioSource(this.tag);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class FakeTag {
+  final String id;
+  FakeTag(this.id);
 }
 
 class FakeAudioPlayerService implements AudioPlayerService {
@@ -32,15 +69,29 @@ class FakeAudioPlayerService implements AudioPlayerService {
   final _durationController = StreamController<Duration?>.broadcast();
   final _stateController = StreamController<ja.PlayerState>.broadcast();
   final _currentIndexController = StreamController<int?>.broadcast();
+  final _sequenceStateController = StreamController<ja.SequenceState?>.broadcast();
 
   bool _isPlaying = false;
   int? _currentIndex;
+  List<Track> _tracks = [];
 
   void _emitState() {
     _stateController.add(ja.PlayerState(
       _isPlaying,
       ja.ProcessingState.ready,
     ));
+  }
+
+  void _emitSequenceState() {
+    if (_currentIndex != null && _currentIndex! >= 0 && _currentIndex! < _tracks.length) {
+      final track = _tracks[_currentIndex!];
+      final fakeTag = FakeTag(track.id);
+      final fakeSource = FakeIndexedAudioSource(fakeTag);
+      final fakeSeqState = FakeSequenceState(fakeSource);
+      _sequenceStateController.add(fakeSeqState);
+    } else {
+      _sequenceStateController.add(null);
+    }
   }
 
   @override
@@ -50,14 +101,18 @@ class FakeAudioPlayerService implements AudioPlayerService {
   @override
   Stream<ja.PlayerState> get playerStateStream => _stateController.stream;
   @override
+  Stream<ja.SequenceState?> get sequenceStateStream => _sequenceStateController.stream;
+  
   Stream<int?> get currentIndexStream => _currentIndexController.stream;
 
   @override
   Future<void> setPlaylist(List<Track> tracks, {int initialIndex = 0}) async {
+    _tracks = tracks;
     _currentIndex = initialIndex;
     _currentIndexController.add(_currentIndex);
     _isPlaying = true;
     _emitState();
+    _emitSequenceState();
   }
 
   @override
@@ -77,14 +132,16 @@ class FakeAudioPlayerService implements AudioPlayerService {
     if (index != null) {
       _currentIndex = index;
       _currentIndexController.add(_currentIndex);
+      _emitSequenceState();
     }
   }
 
   @override
   void seekToNext() {
-    if (_currentIndex != null) {
+    if (_currentIndex != null && _currentIndex! < _tracks.length - 1) {
       _currentIndex = _currentIndex! + 1;
       _currentIndexController.add(_currentIndex);
+      _emitSequenceState();
     }
   }
 
@@ -93,6 +150,7 @@ class FakeAudioPlayerService implements AudioPlayerService {
     if (_currentIndex != null && _currentIndex! > 0) {
       _currentIndex = _currentIndex! - 1;
       _currentIndexController.add(_currentIndex);
+      _emitSequenceState();
     }
   }
 
@@ -100,6 +158,9 @@ class FakeAudioPlayerService implements AudioPlayerService {
   void stop() {
     _isPlaying = false;
     _emitState();
+    _tracks = [];
+    _currentIndex = null;
+    _sequenceStateController.add(null);
   }
 
   @override
@@ -108,6 +169,7 @@ class FakeAudioPlayerService implements AudioPlayerService {
     _durationController.close();
     _stateController.close();
     _currentIndexController.close();
+    _sequenceStateController.close();
   }
 }
 

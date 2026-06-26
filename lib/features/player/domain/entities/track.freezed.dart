@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Track {
 
- String get id; String get title; String get url; String get albumId; List<String> get artistIds; int get durationMs; bool get isExplicit; String? get coverUrl; int get listeners;
+ String get id; String get title; String get url; String get albumId; List<String> get artistIds; List<String>? get categoryIds; int get durationMs; bool get isExplicit; String? get coverUrl; int get listeners;
 /// Create a copy of Track
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TrackCopyWith<Track> get copyWith => _$TrackCopyWithImpl<Track>(this as Track, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Track&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&const DeepCollectionEquality().equals(other.artistIds, artistIds)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.isExplicit, isExplicit) || other.isExplicit == isExplicit)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.listeners, listeners) || other.listeners == listeners));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Track&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&const DeepCollectionEquality().equals(other.artistIds, artistIds)&&const DeepCollectionEquality().equals(other.categoryIds, categoryIds)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.isExplicit, isExplicit) || other.isExplicit == isExplicit)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.listeners, listeners) || other.listeners == listeners));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,url,albumId,const DeepCollectionEquality().hash(artistIds),durationMs,isExplicit,coverUrl,listeners);
+int get hashCode => Object.hash(runtimeType,id,title,url,albumId,const DeepCollectionEquality().hash(artistIds),const DeepCollectionEquality().hash(categoryIds),durationMs,isExplicit,coverUrl,listeners);
 
 @override
 String toString() {
-  return 'Track(id: $id, title: $title, url: $url, albumId: $albumId, artistIds: $artistIds, durationMs: $durationMs, isExplicit: $isExplicit, coverUrl: $coverUrl, listeners: $listeners)';
+  return 'Track(id: $id, title: $title, url: $url, albumId: $albumId, artistIds: $artistIds, categoryIds: $categoryIds, durationMs: $durationMs, isExplicit: $isExplicit, coverUrl: $coverUrl, listeners: $listeners)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TrackCopyWith<$Res>  {
   factory $TrackCopyWith(Track value, $Res Function(Track) _then) = _$TrackCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, String url, String albumId, List<String> artistIds, int durationMs, bool isExplicit, String? coverUrl, int listeners
+ String id, String title, String url, String albumId, List<String> artistIds, List<String>? categoryIds, int durationMs, bool isExplicit, String? coverUrl, int listeners
 });
 
 
@@ -65,14 +65,15 @@ class _$TrackCopyWithImpl<$Res>
 
 /// Create a copy of Track
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? url = null,Object? albumId = null,Object? artistIds = null,Object? durationMs = null,Object? isExplicit = null,Object? coverUrl = freezed,Object? listeners = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? url = null,Object? albumId = null,Object? artistIds = null,Object? categoryIds = freezed,Object? durationMs = null,Object? isExplicit = null,Object? coverUrl = freezed,Object? listeners = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,albumId: null == albumId ? _self.albumId : albumId // ignore: cast_nullable_to_non_nullable
 as String,artistIds: null == artistIds ? _self.artistIds : artistIds // ignore: cast_nullable_to_non_nullable
-as List<String>,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
+as List<String>,categoryIds: freezed == categoryIds ? _self.categoryIds : categoryIds // ignore: cast_nullable_to_non_nullable
+as List<String>?,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
 as int,isExplicit: null == isExplicit ? _self.isExplicit : isExplicit // ignore: cast_nullable_to_non_nullable
 as bool,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,listeners: null == listeners ? _self.listeners : listeners // ignore: cast_nullable_to_non_nullable
@@ -161,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String url,  String albumId,  List<String> artistIds,  int durationMs,  bool isExplicit,  String? coverUrl,  int listeners)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String url,  String albumId,  List<String> artistIds,  List<String>? categoryIds,  int durationMs,  bool isExplicit,  String? coverUrl,  int listeners)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Track() when $default != null:
-return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_that.durationMs,_that.isExplicit,_that.coverUrl,_that.listeners);case _:
+return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_that.categoryIds,_that.durationMs,_that.isExplicit,_that.coverUrl,_that.listeners);case _:
   return orElse();
 
 }
@@ -182,10 +183,10 @@ return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String url,  String albumId,  List<String> artistIds,  int durationMs,  bool isExplicit,  String? coverUrl,  int listeners)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String url,  String albumId,  List<String> artistIds,  List<String>? categoryIds,  int durationMs,  bool isExplicit,  String? coverUrl,  int listeners)  $default,) {final _that = this;
 switch (_that) {
 case _Track():
-return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_that.durationMs,_that.isExplicit,_that.coverUrl,_that.listeners);case _:
+return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_that.categoryIds,_that.durationMs,_that.isExplicit,_that.coverUrl,_that.listeners);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +203,10 @@ return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String url,  String albumId,  List<String> artistIds,  int durationMs,  bool isExplicit,  String? coverUrl,  int listeners)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String url,  String albumId,  List<String> artistIds,  List<String>? categoryIds,  int durationMs,  bool isExplicit,  String? coverUrl,  int listeners)?  $default,) {final _that = this;
 switch (_that) {
 case _Track() when $default != null:
-return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_that.durationMs,_that.isExplicit,_that.coverUrl,_that.listeners);case _:
+return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_that.categoryIds,_that.durationMs,_that.isExplicit,_that.coverUrl,_that.listeners);case _:
   return null;
 
 }
@@ -217,7 +218,7 @@ return $default(_that.id,_that.title,_that.url,_that.albumId,_that.artistIds,_th
 @JsonSerializable()
 
 class _Track implements Track {
-  const _Track({required this.id, required this.title, required this.url, required this.albumId, required final  List<String> artistIds, this.durationMs = 0, this.isExplicit = false, this.coverUrl, this.listeners = 0}): _artistIds = artistIds;
+  const _Track({required this.id, required this.title, required this.url, required this.albumId, required final  List<String> artistIds, final  List<String>? categoryIds, this.durationMs = 0, this.isExplicit = false, this.coverUrl, this.listeners = 0}): _artistIds = artistIds,_categoryIds = categoryIds;
   factory _Track.fromJson(Map<String, dynamic> json) => _$TrackFromJson(json);
 
 @override final  String id;
@@ -229,6 +230,15 @@ class _Track implements Track {
   if (_artistIds is EqualUnmodifiableListView) return _artistIds;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_artistIds);
+}
+
+ final  List<String>? _categoryIds;
+@override List<String>? get categoryIds {
+  final value = _categoryIds;
+  if (value == null) return null;
+  if (_categoryIds is EqualUnmodifiableListView) return _categoryIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
 }
 
 @override@JsonKey() final  int durationMs;
@@ -249,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Track&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&const DeepCollectionEquality().equals(other._artistIds, _artistIds)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.isExplicit, isExplicit) || other.isExplicit == isExplicit)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.listeners, listeners) || other.listeners == listeners));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Track&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.url, url) || other.url == url)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&const DeepCollectionEquality().equals(other._artistIds, _artistIds)&&const DeepCollectionEquality().equals(other._categoryIds, _categoryIds)&&(identical(other.durationMs, durationMs) || other.durationMs == durationMs)&&(identical(other.isExplicit, isExplicit) || other.isExplicit == isExplicit)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.listeners, listeners) || other.listeners == listeners));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,url,albumId,const DeepCollectionEquality().hash(_artistIds),durationMs,isExplicit,coverUrl,listeners);
+int get hashCode => Object.hash(runtimeType,id,title,url,albumId,const DeepCollectionEquality().hash(_artistIds),const DeepCollectionEquality().hash(_categoryIds),durationMs,isExplicit,coverUrl,listeners);
 
 @override
 String toString() {
-  return 'Track(id: $id, title: $title, url: $url, albumId: $albumId, artistIds: $artistIds, durationMs: $durationMs, isExplicit: $isExplicit, coverUrl: $coverUrl, listeners: $listeners)';
+  return 'Track(id: $id, title: $title, url: $url, albumId: $albumId, artistIds: $artistIds, categoryIds: $categoryIds, durationMs: $durationMs, isExplicit: $isExplicit, coverUrl: $coverUrl, listeners: $listeners)';
 }
 
 
@@ -269,7 +279,7 @@ abstract mixin class _$TrackCopyWith<$Res> implements $TrackCopyWith<$Res> {
   factory _$TrackCopyWith(_Track value, $Res Function(_Track) _then) = __$TrackCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, String url, String albumId, List<String> artistIds, int durationMs, bool isExplicit, String? coverUrl, int listeners
+ String id, String title, String url, String albumId, List<String> artistIds, List<String>? categoryIds, int durationMs, bool isExplicit, String? coverUrl, int listeners
 });
 
 
@@ -286,14 +296,15 @@ class __$TrackCopyWithImpl<$Res>
 
 /// Create a copy of Track
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? url = null,Object? albumId = null,Object? artistIds = null,Object? durationMs = null,Object? isExplicit = null,Object? coverUrl = freezed,Object? listeners = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? url = null,Object? albumId = null,Object? artistIds = null,Object? categoryIds = freezed,Object? durationMs = null,Object? isExplicit = null,Object? coverUrl = freezed,Object? listeners = null,}) {
   return _then(_Track(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,albumId: null == albumId ? _self.albumId : albumId // ignore: cast_nullable_to_non_nullable
 as String,artistIds: null == artistIds ? _self._artistIds : artistIds // ignore: cast_nullable_to_non_nullable
-as List<String>,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
+as List<String>,categoryIds: freezed == categoryIds ? _self._categoryIds : categoryIds // ignore: cast_nullable_to_non_nullable
+as List<String>?,durationMs: null == durationMs ? _self.durationMs : durationMs // ignore: cast_nullable_to_non_nullable
 as int,isExplicit: null == isExplicit ? _self.isExplicit : isExplicit // ignore: cast_nullable_to_non_nullable
 as bool,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,listeners: null == listeners ? _self.listeners : listeners // ignore: cast_nullable_to_non_nullable

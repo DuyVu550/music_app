@@ -6,6 +6,8 @@ import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
 import 'package:music_app/features/player/presentation/controllers/player_notifier.dart';
 import 'package:music_app/features/explore/presentation/pages/featured_songs_page.dart';
+import 'package:music_app/features/explore/domain/entities/category.dart';
+import 'package:music_app/features/explore/domain/entities/artist.dart';
 
 class FakeTrackRepository implements TrackRepository {
   final List<Track> tracks;
@@ -25,6 +27,18 @@ class FakeTrackRepository implements TrackRepository {
 
   @override
   Future<List<Track>> getAllTracks() async => [];
+
+  @override
+  Future<List<Category>> getCategories() async => [];
+
+  @override
+  Future<List<Artist>> getArtists() async => [];
+
+  @override
+  Future<List<Track>> getTracksByCategory(String categoryId) async => [];
+
+  @override
+  Future<List<Track>> getTracksByArtist(String artistId) async => [];
 }
 
 class FakePlayerNotifier extends PlayerNotifier {

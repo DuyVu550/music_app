@@ -1,16 +1,21 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:dio/dio.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
+import '../../../explore/domain/entities/category.dart';
+import '../../../explore/domain/entities/artist.dart';
 
 /// Repository kết nối với Branium API (thantrieu.com) và Gist URL
 /// Fetch toàn bộ danh sách nhạc một lần và cache lại.
 class TrackRepositoryImpl implements TrackRepository {
   final Dio _dio;
   List<Track>? _cachedTracks;
+  List<Artist>? _cachedArtists;
+  final Map<String, List<Track>> _categoryTracksCache = {};
+  final Map<String, List<Track>> _artistTracksCache = {};
 
   TrackRepositoryImpl({Dio? dio})
       : _dio = dio ?? Dio(BaseOptions(headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}));
@@ -180,5 +185,65 @@ class TrackRepositoryImpl implements TrackRepository {
       return track.title.toLowerCase().contains(lowerQuery) ||
              (track.artistIds.isNotEmpty && track.artistIds.first.toLowerCase().contains(lowerQuery));
     }).toList();
+  }
+
+  @override
+  Future<List<Category>> getCategories() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return const [
+      Category(id: 'c1', name: 'Pop', imageUrl: 'https://picsum.photos/seed/pop/300/300'),
+      Category(id: 'c2', name: 'Rock', imageUrl: 'https://picsum.photos/seed/rock/300/300'),
+      Category(id: 'c3', name: 'Hip Hop', imageUrl: 'https://picsum.photos/seed/hiphop/300/300'),
+      Category(id: 'c4', name: 'Electronic', imageUrl: 'https://picsum.photos/seed/electronic/300/300'),
+      Category(id: 'c5', name: 'Jazz', imageUrl: 'https://picsum.photos/seed/jazz/300/300'),
+      Category(id: 'c6', name: 'Classical', imageUrl: 'https://picsum.photos/seed/classical/300/300'),
+    ];
+  }
+
+  @override
+  Future<List<Artist>> getArtists() async {
+    await _fetchAllTracksIfNeeded();
+    if (_cachedArtists == null) {
+      final artistNames = <String>{};
+      for (final track in _cachedTracks ?? <Track>[]) {
+        artistNames.addAll(track.artistIds);
+      }
+      _cachedArtists = artistNames.map((name) {
+        return Artist(
+          id: 'artist_${name.replaceAll(' ', '_')}',
+          name: name,
+          imageUrl: 'https://picsum.photos/seed/${name.hashCode.abs()}/300/300',
+        );
+      }).toList();
+    }
+    // Return top 10 unique artists for home screen display
+    return _cachedArtists!.take(10).toList();
+  }
+
+  @override
+  Future<List<Track>> getTracksByCategory(String categoryId) async {
+    if (_categoryTracksCache.containsKey(categoryId)) {
+      return _categoryTracksCache[categoryId]!;
+    }
+    await _fetchAllTracksIfNeeded();
+    // Simulate filtering by category (we randomly assign categories to mock data if it doesn't have it)
+    final list = List<Track>.from(_cachedTracks ?? []);
+    list.shuffle(Random(categoryId.hashCode));
+    final result = list.take(15).toList();
+    _categoryTracksCache[categoryId] = result;
+    return result;
+  }
+
+  @override
+  Future<List<Track>> getTracksByArtist(String artistId) async {
+    if (_artistTracksCache.containsKey(artistId)) {
+      return _artistTracksCache[artistId]!;
+    }
+    await _fetchAllTracksIfNeeded();
+    final result = (_cachedTracks ?? []).where((track) {
+      return track.artistIds.any((name) => 'artist_${name.replaceAll(' ', '_')}' == artistId);
+    }).toList();
+    _artistTracksCache[artistId] = result;
+    return result;
   }
 }

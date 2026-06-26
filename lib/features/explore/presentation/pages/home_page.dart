@@ -8,6 +8,10 @@ import '../../../player/presentation/controllers/player_notifier.dart';
 import '../controllers/featured_tracks_notifier.dart';
 import '../controllers/popular_tracks_notifier.dart';
 import '../controllers/new_tracks_notifier.dart';
+import '../controllers/categories_notifier.dart';
+import '../controllers/artists_notifier.dart';
+import 'category_songs_page.dart';
+import 'artist_songs_page.dart';
 import 'feedback_page.dart';
 import 'all_songs_page.dart';
 import 'featured_songs_page.dart';
@@ -95,6 +99,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     final featuredAsync = ref.watch(featuredTracksProvider);
     final popularAsync = ref.watch(popularTracksProvider);
     final newTracksAsync = ref.watch(newTracksProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final artistsAsync = ref.watch(artistsProvider);
     final authState = ref.watch(authNotifierProvider);
     final user = authState.value;
 
@@ -344,10 +350,128 @@ class _HomePageState extends ConsumerState<HomePage> {
                 const SizedBox(height: 20),
               ] else ...[
                 // ============================================================
-                // FEATURED TRACKS SLIDER — Dữ liệu realtime từ Last.fm API
+                // FEATURED TRACKS SLIDER
                 // ============================================================
                 _buildFeaturedSlider(featuredAsync),
                 const SizedBox(height: 24),
+
+                // ============================================================
+                // CATEGORIES (Thể loại)
+                // ============================================================
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Thể loại nổi bật',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 100,
+                  child: categoriesAsync.when(
+                    data: (categories) {
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CategorySongsPage(category: category)));
+                            },
+                            child: Container(
+                              width: 140,
+                              margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                image: DecorationImage(
+                                  image: NetworkImage(category.imageUrl),
+                                  fit: BoxFit.cover,
+                                  colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: 0.4), BlendMode.darken),
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                category.name,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
+                    error: (err, stack) => Center(child: Text('Lỗi: $err', style: const TextStyle(color: Colors.red))),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ============================================================
+                // ARTISTS (Nghệ sĩ)
+                // ============================================================
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Nghệ sĩ nổi bật',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 120,
+                  child: artistsAsync.when(
+                    data: (artists) {
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        itemCount: artists.length,
+                        itemBuilder: (context, index) {
+                          final artist = artists[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ArtistSongsPage(artist: artist)));
+                            },
+                            child: Container(
+                              width: 100,
+                              margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 40,
+                                    backgroundImage: NetworkImage(artist.imageUrl),
+                                    backgroundColor: Colors.white24,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    artist.name,
+                                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
+                    error: (err, stack) => Center(child: Text('Lỗi: $err', style: const TextStyle(color: Colors.red))),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
 
                 // Popular Section (Realtime-like from provider state)
                 Padding(

@@ -11,6 +11,7 @@ abstract class Track with _$Track {
     required String url,
     required String albumId,
     required List<String> artistIds,
+    List<String>? categoryIds,
     @Default(0) int durationMs,
     @Default(false) bool isExplicit,
     String? coverUrl,

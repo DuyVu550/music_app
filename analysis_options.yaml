@@ -34,37 +34,46 @@
 #    - Tên biến, hàm: camelCase (ví dụ: currentPlayingSong, playNextSong()).
 #    - Data Transfer Object đặt đuôi là `Dto` hoặc `Model` (ví dụ: TrackDto), Domain Entity giữ nguyên tên gốc (ví dụ: Track).
 #
-# 7. Tính năng cốt lõi (Music Basic Application):
-#    - Màn hình Home:
-#      + Hiển thị danh sách bài hát nổi bật dưới dạng Slide Images + Auto Run (Realtime).
-#      + Tính năng tìm kiếm bài hát theo tên (Name).
-#      + Hiển thị một số bài hát phổ biến (Popular) và bài hát mới nhất (Newest) (Realtime).
-#      + Bottom Layout điều khiển trình phát nhạc nhanh: Play/Pause, Next, Back, Close.
-#    - Các màn hình danh sách (Realtime):
-#      + Danh sách tất cả bài hát (All Songs).
-#      + Danh sách bài hát nổi bật (Featured Songs).
-#      + Danh sách bài hát phổ biến nhiều người nghe (Popular Songs).
-#      + Danh sách bài hát mới nhất (New Songs).
-#    - Màn hình Music Player:
-#      + Điều khiển trình phát nhạc (Play/Pause, Next, Back, Tua nhạc / Seek).
-#      + Hiển thị thời gian chạy nhạc hiện tại & Tổng thời lượng.
-#      + Hiển thị danh sách bài hát đang chạy (List Songs Playing).
-#      + Push Notification điều khiển trình phát nhạc (Play/Pause, Next, Back, Close).
-#    - Tính năng phụ trợ:
-#      + Feedback: Gửi phản hồi, đóng góp ý kiến hoặc đánh giá ứng dụng.
-#      + Contact: Hiển thị các phương thức liên hệ với nhà phát triển ứng dụng.
-#
-# 7.1. Các tính năng nâng cao bổ sung (Advanced Features):
-#    - Module Quản lý tài khoản (Auth) theo 2 role riêng biệt (Admin & User):
+# 7. Tính năng cốt lõi & Nâng cấp Pro (Core & Pro Features):
+#    - Module User (Quản lý tài khoản):
 #      + Đăng nhập, đăng ký, quên mật khẩu, đổi mật khẩu.
 #      + Hiển thị thông tin cá nhân (User Profile).
 #      + Đăng xuất.
+#    - Màn hình Home:
+#      + Slide Images bài hát nổi bật + Auto Run (Realtime).
+#      + Thể loại nhạc (Category) & Nghệ sĩ (Artist) nổi bật (Realtime).
+#      + Bài hát phổ biến (Popular Songs) & Bài hát yêu thích (Favorite Songs) (Realtime).
+#      + Layout Bottom điều khiển trình phát nhạc nhanh (Play/Pause, Next, Back, Close) ở tất cả màn hình.
+#    - Các màn hình danh sách & Điều hướng:
+#      + Danh sách tất cả bài hát (All Songs) - Realtime.
+#      + Danh sách tất cả thể loại nhạc (Category List) -> Click vào xem danh sách bài hát thuộc Category đó.
+#      + Danh sách tất cả nghệ sĩ (Artist List) -> Click vào xem danh sách bài hát của Artist đó.
+#      + Danh sách tất cả bài hát phổ biến (Popular Songs List) - Realtime.
+#      + Danh sách tất cả bài hát yêu thích (Favorite Songs List) theo từng User - Realtime.
+#    - Màn hình Search:
+#      + Tìm kiếm bài hát theo keyword (tên bài hát).
+#    - Dialog Bottom (Options khi click vào nút 3 chấm của bài hát):
+#      + Tải bài hát (Download).
+#      + Ưu tiên phát kế tiếp (Play Next).
+#      + Thêm bài hát vào danh sách phát (Add to queue).
+#      + Xóa bài hát khỏi danh sách phát (Remove from queue).
+#    - Màn hình Music Player (Trình phát nhạc):
+#      + Hiển thị thông tin chi tiết bài hát, số lượt nghe.
+#      + Điều khiển nhạc: Play/Pause, Next, Back, tua nhạc (seek), chế độ phát ngẫu nhiên (Shuffle), lặp lại 1 bài (Repeat One).
+#      + Thêm bài hát vào danh sách yêu thích, tải bài hát trực tiếp từ Player.
+#      + Xem danh sách bài hát đang chạy (List Songs Playing) và có thể xóa bài hát ra khỏi hàng chờ phát hiện tại.
+#    - Hệ thống thông báo (Push Notification):
+#      + Notification điều khiển nhạc: Play/Pause, Next, Back, Close.
+#      + Notification thông báo tiến trình download bài hát.
+#    - Tính năng Feedback & Liên hệ (Contact):
+#      + Feedback: Gửi phản hồi, đóng góp ý kiến hoặc đánh giá ứng dụng.
+#      + Contact: Hiển thị các liên kết liên hệ nhà phát triển (Facebook, Call Phone, Gmail, Skype, Zalo, Youtube).
+#
+# 7.1. Các tính năng dành cho Quản trị viên (Admin Features):
 #    - Role Quản trị viên (Admin):
 #      + Quản lý bài hát: Thêm, sửa, xóa, hiển thị danh sách bài hát trên ứng dụng.
 #      + Tìm kiếm bài hát theo tên trong trang quản lý.
 #      + Quản lý danh sách feedback (phản hồi, đóng góp ý kiến) của người dùng.
-#    - Role Người dùng (User):
-#      + Hiển thị danh sách tất cả bài hát yêu thích (Favorite Songs) theo từng User (Realtime).
 #
 # 8. Lưu ý Code Style (Dành cho AI & Developers):
 #    - Viết code tường minh, dễ hiểu, tránh các cú pháp viết tắt quá mức gây khó hiểu.

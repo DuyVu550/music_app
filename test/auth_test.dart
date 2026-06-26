@@ -14,6 +14,8 @@ import 'package:music_app/features/admin/presentation/pages/admin_home_page.dart
 import 'package:music_app/features/explore/presentation/pages/home_page.dart';
 import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/domain/repositories/track_repository.dart';
+import 'package:music_app/features/explore/domain/entities/category.dart';
+import 'package:music_app/features/explore/domain/entities/artist.dart';
 
 class FakeTrackRepository implements TrackRepository {
   final mockTrack = const Track(
@@ -40,6 +42,18 @@ class FakeTrackRepository implements TrackRepository {
 
   @override
   Future<List<Track>> getAllTracks() async => [mockTrack];
+
+  @override
+  Future<List<Category>> getCategories() async => [];
+
+  @override
+  Future<List<Artist>> getArtists() async => [];
+
+  @override
+  Future<List<Track>> getTracksByCategory(String categoryId) async => [];
+
+  @override
+  Future<List<Track>> getTracksByArtist(String artistId) async => [];
 }
 
 class FakeAuthRepository implements AuthRepository {
