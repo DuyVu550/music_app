@@ -17,12 +17,12 @@ import 'all_songs_page.dart';
 import 'featured_songs_page.dart';
 import 'popular_songs_page.dart';
 import 'new_songs_page.dart';
-import '../../../player/presentation/pages/player_page.dart';
+import 'category_list_page.dart';
+import 'artist_list_page.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../auth/presentation/controllers/auth_notifier.dart';
 import '../../../auth/presentation/pages/change_password_page.dart';
 import '../../../auth/presentation/pages/profile_page.dart';
-import 'package:music_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:music_app/features/favorites/presentation/pages/favorite_songs_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -358,15 +358,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                 // ============================================================
                 // CATEGORIES (Thể loại)
                 // ============================================================
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Thể loại nổi bật',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Thể loại nổi bật',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryListPage()));
+                        },
+                        child: const Text('Xem tất cả', style: TextStyle(color: Colors.cyanAccent)),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -415,15 +426,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                 // ============================================================
                 // ARTISTS (Nghệ sĩ)
                 // ============================================================
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Nghệ sĩ nổi bật',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Nghệ sĩ nổi bật',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ArtistListPage()));
+                        },
+                        child: const Text('Xem tất cả', style: TextStyle(color: Colors.cyanAccent)),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),

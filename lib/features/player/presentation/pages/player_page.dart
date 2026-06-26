@@ -103,8 +103,8 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Mã Album: ${track.albumId}',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+                              track.artistIds.isNotEmpty ? track.artistIds.first : 'Nghệ sĩ chưa rõ',
+                              style: const TextStyle(color: Colors.cyanAccent, fontSize: 16, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),

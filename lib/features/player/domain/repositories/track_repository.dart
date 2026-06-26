@@ -14,6 +14,7 @@ abstract class TrackRepository {
   Future<List<Track>> getFeaturedTracks();
   Future<List<Track>> searchTracks(String query);
   Future<List<Track>> getAllTracks();
+  Stream<List<Track>> getAllTracksStream();
   
   // Category & Artist
   Future<List<Category>> getCategories();

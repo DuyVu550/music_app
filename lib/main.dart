@@ -11,6 +11,7 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/admin/presentation/pages/admin_home_page.dart';
 import 'features/auth/domain/entities/user.dart';
 import 'features/player/presentation/widgets/global_bottom_player.dart';
+import 'core/utils/navigation_service.dart';
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -51,6 +52,7 @@ class MyApp extends ConsumerWidget {
     final authState = ref.watch(authNotifierProvider);
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Harmonix Music',
       debugShowCheckedModeBanner: false,
       scrollBehavior: MyCustomScrollBehavior(),

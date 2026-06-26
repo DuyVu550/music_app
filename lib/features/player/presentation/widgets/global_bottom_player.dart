@@ -5,6 +5,7 @@ import '../pages/player_page.dart';
 import '../../../auth/presentation/controllers/auth_notifier.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
+import '../../../../core/utils/navigation_service.dart';
 
 class BottomPlayerVisibilityNotifier extends Notifier<bool> {
   @override
@@ -45,10 +46,16 @@ class GlobalBottomPlayerWidget extends ConsumerWidget {
 
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PlayerPage()),
-            );
+            if (navigatorKey.currentState != null) {
+              navigatorKey.currentState!.push(
+                MaterialPageRoute(builder: (context) => const PlayerPage()),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PlayerPage()),
+              );
+            }
           },
           child: Container(
             color: const Color(0xFF16162A),
@@ -133,7 +140,7 @@ class GlobalBottomPlayerWidget extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (error, stackTrace) => const SizedBox.shrink(),
     );
   }
 }

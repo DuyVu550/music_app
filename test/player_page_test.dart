@@ -150,7 +150,7 @@ void main() {
 
       // Check title and album
       expect(find.text('Song One'), findsNWidgets(2));
-      expect(find.text('Mã Album: Album 1'), findsOneWidget);
+      expect(find.text('Artist A'), findsOneWidget);
 
       // Check duration formatted strings
       expect(find.text('00:45'), findsOneWidget); // current position

@@ -35,6 +35,9 @@ class FakeTrackRepository implements TrackRepository {
   Future<List<Track>> getAllTracks() async => [];
 
   @override
+  Stream<List<Track>> getAllTracksStream() => Stream.value(tracks);
+
+  @override
   Future<List<Category>> getCategories() async => [];
 
   @override

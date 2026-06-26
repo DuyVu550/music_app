@@ -152,6 +152,38 @@ class TrackRepositoryImpl implements TrackRepository {
   }
 
   @override
+  Stream<List<Track>> getAllTracksStream() {
+    if (Firebase.apps.isEmpty) {
+      return Stream.fromFuture(getAllTracks());
+    }
+
+    return FirebaseFirestore.instance
+        .collection('songs')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      await _fetchAllTracksIfNeeded();
+      
+      final firestoreTracks = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Track(
+          id: doc.id,
+          title: data['title']?.toString() ?? 'Unknown',
+          url: data['audioUrl']?.toString() ?? '',
+          albumId: 'Admin Upload',
+          artistIds: [data['artist']?.toString() ?? 'Unknown Artist'],
+          durationMs: 0,
+          coverUrl: (data['coverUrl']?.toString().isEmpty ?? true) ? null : data['coverUrl']?.toString(),
+          listeners: 0,
+        );
+      }).toList();
+
+      final staticTracks = (_cachedTracks ?? []).where((t) => t.albumId != 'Admin Upload').toList();
+      final combined = [...firestoreTracks, ...staticTracks];
+      return combined;
+    });
+  }
+
+  @override
   Future<List<Track>> getFeaturedTracks() async {
     await _fetchAllTracksIfNeeded();
     final list = List<Track>.from(_cachedTracks ?? []);
