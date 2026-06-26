@@ -12,18 +12,28 @@ class FavoriteRepository {
     return _firestore
         .collection('favorites')
         .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        // Fix Timestamp conversion for createdAt
-        if (data['createdAt'] is Timestamp) {
-          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+      final list = snapshot.docs.map((doc) {
+        try {
+          final data = doc.data();
+          data['id'] = doc.id;
+          // Fix Timestamp conversion for createdAt
+          if (data['createdAt'] is Timestamp) {
+            data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+          } else if (data['createdAt'] == null) {
+            data['createdAt'] = DateTime.now().toIso8601String();
+          }
+          return FavoriteModel.fromJson(data);
+        } catch (e) {
+          // Bỏ qua các tài liệu yêu thích bị lỗi hoặc thiếu dữ liệu (ví dụ: thiếu trackId hoặc userId)
+          return null;
         }
-        return FavoriteModel.fromJson(data);
-      }).toList();
+      }).whereType<FavoriteModel>().toList();
+      
+      // Sắp xếp danh sách trong bộ nhớ (mới nhất lên đầu) để tránh yêu cầu Composite Index trên Firestore
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
     });
   }
 
