@@ -6,6 +6,10 @@ import 'package:music_app/features/player/domain/entities/track.dart';
 import 'package:music_app/features/player/presentation/controllers/player_notifier.dart';
 import 'package:music_app/features/explore/presentation/pages/all_songs_page.dart';
 import 'package:music_app/features/explore/presentation/controllers/all_tracks_notifier.dart';
+import 'package:music_app/features/player/presentation/widgets/global_bottom_player.dart';
+import 'package:music_app/features/auth/presentation/controllers/auth_notifier.dart';
+import 'package:music_app/features/favorites/data/repositories/favorite_repository.dart';
+import 'fakes.dart';
 
 class FakePlayerNotifier extends PlayerNotifier {
   final PlayerState _initialState;
@@ -77,8 +81,28 @@ void main() {
             allTracksProvider.overrideWith(
               () => FakeAllTracksNotifier([mockTrack]),
             ),
+            authNotifierProvider.overrideWith(
+              () => FakeAuthNotifier(),
+            ),
+            favoriteRepositoryProvider.overrideWithValue(
+              FakeFavoriteRepository(),
+            ),
           ],
-          child: const MaterialApp(home: AllSongsPage()),
+          child: MaterialApp(
+            home: Scaffold(
+              body: Stack(
+                children: [
+                  const AllSongsPage(),
+                  const Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: GlobalBottomPlayerWidget(),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       );
 

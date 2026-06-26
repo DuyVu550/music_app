@@ -4,8 +4,34 @@ import '../../domain/entities/track.dart';
 import '../controllers/player_notifier.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 
-class PlayerPage extends ConsumerWidget {
+import 'package:music_app/features/player/presentation/widgets/global_bottom_player.dart';
+
+class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
+
+  @override
+  ConsumerState<PlayerPage> createState() => _PlayerPageState();
+}
+
+class _PlayerPageState extends ConsumerState<PlayerPage> {
+  late final BottomPlayerVisibilityNotifier _visibilityNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _visibilityNotifier = ref.read(bottomPlayerVisibilityProvider.notifier);
+    Future.microtask(() {
+      _visibilityNotifier.setVisibility(false);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _visibilityNotifier.setVisibility(true);
+    });
+    super.dispose();
+  }
 
   String _formatDuration(Duration d) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -15,7 +41,7 @@ class PlayerPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final playerStateAsync = ref.watch(playerNotifierProvider);
 
     return Scaffold(

@@ -8,8 +8,14 @@ import 'package:music_app/features/player/presentation/controllers/player_notifi
 import 'package:music_app/features/explore/presentation/pages/featured_songs_page.dart';
 import 'package:music_app/features/explore/domain/entities/category.dart';
 import 'package:music_app/features/explore/domain/entities/artist.dart';
+import 'package:music_app/features/player/presentation/widgets/global_bottom_player.dart';
+import 'package:music_app/features/auth/presentation/controllers/auth_notifier.dart';
+import 'package:music_app/features/favorites/data/repositories/favorite_repository.dart';
+import 'fakes.dart';
 
 class FakeTrackRepository implements TrackRepository {
+  @override
+  Stream<List<Track>> getPopularTracksStream() => Stream.value([]);
   final List<Track> tracks;
   FakeTrackRepository({required this.tracks});
 
@@ -109,9 +115,23 @@ void main() {
         overrides: [
           trackRepositoryProvider.overrideWithValue(fakeTrackRepo),
           playerNotifierProvider.overrideWith(() => fakePlayerNotifier),
+          authNotifierProvider.overrideWith(() => FakeAuthNotifier()),
+          favoriteRepositoryProvider.overrideWithValue(FakeFavoriteRepository()),
         ],
         child: const MaterialApp(
-          home: FeaturedSongsPage(),
+          home: Scaffold(
+            body: Stack(
+              children: [
+                FeaturedSongsPage(),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: GlobalBottomPlayerWidget(),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

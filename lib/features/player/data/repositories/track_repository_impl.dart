@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:dio/dio.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
 import '../../../explore/domain/entities/category.dart';
@@ -165,6 +166,39 @@ class TrackRepositoryImpl implements TrackRepository {
     // Sort by listeners (counter) descending
     list.sort((a, b) => b.listeners.compareTo(a.listeners));
     return list.take(20).toList();
+  }
+
+  @override
+  Stream<List<Track>> getPopularTracksStream() {
+    if (Firebase.apps.isEmpty) {
+      return Stream.fromFuture(getPopularTracks());
+    }
+
+    return FirebaseFirestore.instance
+        .collection('songs')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      await _fetchAllTracksIfNeeded();
+      
+      final firestoreTracks = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Track(
+          id: doc.id,
+          title: data['title']?.toString() ?? 'Unknown',
+          url: data['audioUrl']?.toString() ?? '',
+          albumId: 'Admin Upload',
+          artistIds: [data['artist']?.toString() ?? 'Unknown Artist'],
+          durationMs: 0,
+          coverUrl: (data['coverUrl']?.toString().isEmpty ?? true) ? null : data['coverUrl']?.toString(),
+          listeners: 0,
+        );
+      }).toList();
+
+      final staticTracks = (_cachedTracks ?? []).where((t) => t.albumId != 'Admin Upload').toList();
+      final combined = [...firestoreTracks, ...staticTracks];
+      combined.sort((a, b) => b.listeners.compareTo(a.listeners));
+      return combined.take(20).toList();
+    });
   }
 
   @override

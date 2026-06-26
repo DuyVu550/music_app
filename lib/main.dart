@@ -10,6 +10,7 @@ import 'features/auth/presentation/controllers/auth_notifier.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/admin/presentation/pages/admin_home_page.dart';
 import 'features/auth/domain/entities/user.dart';
+import 'features/player/presentation/widgets/global_bottom_player.dart';
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -125,6 +126,16 @@ class MyApp extends ConsumerWidget {
           ),
         ),
       ),
+      builder: (context, child) {
+        return Scaffold(
+          body: Column(
+            children: [
+              Expanded(child: child ?? const SizedBox.shrink()),
+              const GlobalBottomPlayerWidget(),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -9,6 +9,7 @@ final trackRepositoryProvider = Provider<TrackRepository>((ref) {
 
 abstract class TrackRepository {
   Future<List<Track>> getPopularTracks();
+  Stream<List<Track>> getPopularTracksStream();
   Future<List<Track>> getNewTracks();
   Future<List<Track>> getFeaturedTracks();
   Future<List<Track>> searchTracks(String query);
