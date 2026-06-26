@@ -1,37 +1,36 @@
 @echo off
-:: Cấu hình bảng mã UTF-8 để hiển thị tiếng Việt có dấu trong Command Prompt
 chcp 65001 > nul
 
 echo ===================================================
-echo   TIẾN TRÌNH BACKUP DỰ ÁN LÊN GITHUB - MUSIC APP
+echo   TIEN TRINH BACKUP DU AN LEN GITHUB - MUSIC APP
 echo ===================================================
 echo.
 
-:: 1. Kiểm tra trạng thái thay đổi
-echo [1/3] Đang kiểm tra trạng thái file (Git Status)...
+REM 1. Kiem tra trang thai thay doi (Git Status)
+echo [1/3] Dang kiem tra trang thai file (Git Status)...
 git status -s
 echo.
 
-:: 2. Nhập nội dung Commit (Nếu nhấn Enter sẽ lấy thời gian hiện tại làm mặc định)
+REM 2. Nhap noi dung Commit (Neu nhan Enter se dung mac dinh)
 set "commit_msg="
-set /p commit_msg="Nhập nội dung commit (Nhấn Enter để dùng mặc định: Auto backup %date% %time%): "
+set /p commit_msg="Nhap noi dung commit (Nhan Enter de lay mac dinh: Auto backup): "
 if "%commit_msg%"=="" (
-    set commit_msg=Auto backup %date% %time%
+    set commit_msg=Auto backup
 )
 
 echo.
-echo [2/3] Đang chuẩn bị và commit các thay đổi...
+echo [2/3] Dang chuan bi va commit cac thay doi...
 git add .
 git commit -m "%commit_msg%"
 echo.
 
-:: 3. Push lên repository hiện tại
-echo [3/3] Đang push code lên GitHub...
+REM 3. Push len repository hien tai
+echo [3/3] Dang push code len GitHub...
 git push
 echo.
 
 echo ===================================================
-echo   ĐÃ BACKUP XONG! Dự án đã được đồng bộ lên Git.
+echo   DA BACKUP XONG! Du an da duoc dong bo len Git.
 echo ===================================================
 echo.
 pause
