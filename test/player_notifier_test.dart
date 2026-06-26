@@ -161,6 +161,48 @@ class FakeAudioPlayerService implements AudioPlayerService {
   }
 
   @override
+  int getTrackIndexInPlaylist(String trackId) {
+    return _tracks.indexWhere((t) => t.id == trackId);
+  }
+
+  @override
+  void playNext(Track track) {
+    final existingIndex = getTrackIndexInPlaylist(track.id);
+    if (existingIndex >= 0) {
+      _tracks.removeAt(existingIndex);
+    }
+    final targetIndex = (_currentIndex ?? -1) + 1;
+    if (targetIndex >= 0 && targetIndex <= _tracks.length) {
+      _tracks.insert(targetIndex, track);
+    } else {
+      _tracks.add(track);
+    }
+    _emitSequenceState();
+  }
+
+  @override
+  void addToQueue(Track track) {
+    final existingIndex = getTrackIndexInPlaylist(track.id);
+    if (existingIndex >= 0) {
+      _tracks.removeAt(existingIndex);
+    }
+    _tracks.add(track);
+    _emitSequenceState();
+  }
+
+  @override
+  void removeFromQueue(String trackId) {
+    final existingIndex = getTrackIndexInPlaylist(trackId);
+    if (existingIndex >= 0) {
+      if (existingIndex == _currentIndex) {
+        seekToNext();
+      }
+      _tracks.removeAt(existingIndex);
+      _emitSequenceState();
+    }
+  }
+
+  @override
   void stop() {
     _isPlaying = false;
     _emitState();

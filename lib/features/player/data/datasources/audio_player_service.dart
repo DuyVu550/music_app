@@ -13,37 +13,99 @@ final audioPlayerServiceProvider = Provider<AudioPlayerService>((ref) {
 
 class AudioPlayerService {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  ConcatenatingAudioSource? _playlist;
 
   Stream<Duration> get positionStream => _audioPlayer.positionStream;
   Stream<Duration?> get durationStream => _audioPlayer.durationStream;
   Stream<PlayerState> get playerStateStream => _audioPlayer.playerStateStream;
   Stream<SequenceState?> get sequenceStateStream => _audioPlayer.sequenceStateStream;
 
+  AudioSource _createAudioSource(Track track) {
+    return AudioSource.uri(
+      Uri.parse(track.url),
+      tag: MediaItem(
+        id: track.id,
+        album: track.albumId,
+        title: track.title,
+        artist: track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
+        artUri: track.coverUrl != null && track.coverUrl!.startsWith('http') 
+            ? Uri.parse(track.coverUrl!) 
+            : null,
+      ),
+    );
+  }
+
   Future<void> setPlaylist(List<Track> tracks, {int initialIndex = 0}) async {
     try {
-      final audioSources = tracks.map((track) {
-        return AudioSource.uri(
-          Uri.parse(track.url),
-          tag: MediaItem(
-            id: track.id,
-            album: track.albumId,
-            title: track.title,
-            artist: track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
-            artUri: track.coverUrl != null && track.coverUrl!.startsWith('http') 
-                ? Uri.parse(track.coverUrl!) 
-                : null,
-          ),
-        );
-      }).toList();
+      final audioSources = tracks.map((track) => _createAudioSource(track)).toList();
       
+      _playlist = ConcatenatingAudioSource(children: audioSources);
       await _audioPlayer.stop();
       await _audioPlayer.setAudioSource(
-        ConcatenatingAudioSource(children: audioSources),
+        _playlist!,
         initialIndex: initialIndex,
       );
       await _audioPlayer.play();
     } catch (e) {
       debugPrint("Error playing audio playlist: $e");
+    }
+  }
+
+  int getTrackIndexInPlaylist(String trackId) {
+    if (_playlist == null) return -1;
+    final sequence = _playlist!.sequence;
+    for (int i = 0; i < sequence.length; i++) {
+      final tag = sequence[i].tag;
+      if (tag is MediaItem && tag.id == trackId) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  void playNext(Track track) {
+    if (_playlist == null) {
+      setPlaylist([track]);
+      return;
+    }
+    final currentIndex = _audioPlayer.currentIndex ?? -1;
+    final targetIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
+    
+    final existingIndex = getTrackIndexInPlaylist(track.id);
+    if (existingIndex >= 0) {
+      if (existingIndex == targetIndex || existingIndex == targetIndex - 1) return;
+      _playlist!.removeAt(existingIndex);
+      int insertPos = targetIndex;
+      if (existingIndex < targetIndex) {
+        insertPos--;
+      }
+      _playlist!.insert(insertPos, _createAudioSource(track));
+    } else {
+      _playlist!.insert(targetIndex, _createAudioSource(track));
+    }
+  }
+
+  void addToQueue(Track track) {
+    if (_playlist == null) {
+      setPlaylist([track]);
+      return;
+    }
+    final existingIndex = getTrackIndexInPlaylist(track.id);
+    if (existingIndex >= 0) {
+      _playlist!.removeAt(existingIndex);
+    }
+    _playlist!.add(_createAudioSource(track));
+  }
+
+  void removeFromQueue(String trackId) {
+    if (_playlist == null) return;
+    final index = getTrackIndexInPlaylist(trackId);
+    if (index >= 0) {
+      final currentIndex = _audioPlayer.currentIndex ?? -1;
+      if (index == currentIndex) {
+        seekToNext();
+      }
+      _playlist!.removeAt(index);
     }
   }
 
@@ -69,6 +131,7 @@ class AudioPlayerService {
 
   void stop() {
     _audioPlayer.stop();
+    _playlist = null;
   }
 
   void dispose() {

@@ -154,6 +154,58 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
       );
     }
   }
+
+  void playNext(Track track) {
+    final current = state.value;
+    if (current != null) {
+      final audioService = ref.read(audioPlayerServiceProvider);
+      audioService.playNext(track);
+
+      final existingIndex = current.playlist.indexWhere((t) => t.id == track.id);
+      final list = List<Track>.from(current.playlist);
+      if (existingIndex >= 0) {
+        list.removeAt(existingIndex);
+      }
+      final currentIndex = list.indexWhere((t) => t.id == current.currentTrack?.id);
+      final insertPos = currentIndex >= 0 ? currentIndex + 1 : 0;
+      list.insert(insertPos, track);
+
+      state = AsyncData(current.copyWith(playlist: list));
+    }
+  }
+
+  void addToQueue(Track track) {
+    final current = state.value;
+    if (current != null) {
+      final audioService = ref.read(audioPlayerServiceProvider);
+      audioService.addToQueue(track);
+
+      final existingIndex = current.playlist.indexWhere((t) => t.id == track.id);
+      final list = List<Track>.from(current.playlist);
+      if (existingIndex >= 0) {
+        list.removeAt(existingIndex);
+      }
+      list.add(track);
+
+      state = AsyncData(current.copyWith(playlist: list));
+    }
+  }
+
+  void removeFromQueue(Track track) {
+    final current = state.value;
+    if (current != null) {
+      final audioService = ref.read(audioPlayerServiceProvider);
+      audioService.removeFromQueue(track.id);
+
+      final list = current.playlist.where((t) => t.id != track.id).toList();
+      state = AsyncData(current.copyWith(
+        playlist: list,
+        currentTrack: current.currentTrack?.id == track.id
+            ? (list.isNotEmpty ? list.first : null)
+            : current.currentTrack,
+      ));
+    }
+  }
 }
 
 final playerNotifierProvider =

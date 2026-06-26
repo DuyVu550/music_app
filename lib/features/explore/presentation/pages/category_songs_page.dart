@@ -7,6 +7,7 @@ import '../controllers/categories_notifier.dart';
 import '../../../player/presentation/pages/player_page.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
+import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 
 class CategorySongsPage extends ConsumerWidget {
   final Category category;
@@ -89,7 +90,22 @@ class CategorySongsPage extends ConsumerWidget {
               ),
             ],
           ),
-          trailing: FavoriteButton(trackId: track.id),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FavoriteButton(trackId: track.id, size: 20),
+              IconButton(
+                icon: const Icon(Icons.more_vert, color: Colors.white70),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => SongOptionsBottomSheet(track: track),
+                  );
+                },
+              ),
+            ],
+          ),
           onTap: () {
             ref.read(playerNotifierProvider.notifier).playTrack(track);
             Navigator.push(

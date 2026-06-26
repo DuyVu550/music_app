@@ -6,6 +6,7 @@ import '../../../player/domain/entities/track.dart';
 import '../../../player/presentation/controllers/player_notifier.dart';
 import '../../../player/presentation/pages/player_page.dart';
 import '../widgets/favorite_button.dart';
+import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 
 class FavoriteSongsPage extends ConsumerWidget {
   const FavoriteSongsPage({super.key});
@@ -83,7 +84,22 @@ class FavoriteSongsPage extends ConsumerWidget {
                     ),
                     title: Text(track.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     subtitle: Text(track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist', style: const TextStyle(color: Colors.white54)),
-                    trailing: FavoriteButton(trackId: track.id, size: 24),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FavoriteButton(trackId: track.id, size: 24),
+                        IconButton(
+                          icon: const Icon(Icons.more_vert, color: Colors.white70),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => SongOptionsBottomSheet(track: track),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                     onTap: () {
                       ref.read(playerNotifierProvider.notifier).playTrack(track);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const PlayerPage()));

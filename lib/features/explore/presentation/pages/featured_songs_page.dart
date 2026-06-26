@@ -6,6 +6,7 @@ import '../controllers/featured_tracks_notifier.dart';
 import '../../../player/presentation/pages/player_page.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
+import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 
 class FeaturedSongsPage extends ConsumerWidget {
   const FeaturedSongsPage({super.key});
@@ -34,7 +35,7 @@ class FeaturedSongsPage extends ConsumerWidget {
             itemCount: tracks.length,
             itemBuilder: (context, index) {
               final track = tracks[index];
-              return _buildSongTile(ref, track);
+              return _buildSongTile(context, ref, track);
             },
           );
         },
@@ -44,7 +45,7 @@ class FeaturedSongsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSongTile(WidgetRef ref, Track track) {
+  Widget _buildSongTile(BuildContext context, WidgetRef ref, Track track) {
     final hasNetworkImage = track.coverUrl != null && track.coverUrl!.isNotEmpty && track.coverUrl!.startsWith('http');
 
     return Container(
@@ -101,7 +102,22 @@ class FeaturedSongsPage extends ConsumerWidget {
               ),
             ],
           ),
-          trailing: const Icon(Icons.play_arrow_rounded, color: Colors.cyanAccent),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FavoriteButton(trackId: track.id, size: 20),
+              IconButton(
+                icon: const Icon(Icons.more_vert, color: Colors.white70),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => SongOptionsBottomSheet(track: track),
+                  );
+                },
+              ),
+            ],
+          ),
           onTap: () {
             ref.read(playerNotifierProvider.notifier).playTrack(track);
           },

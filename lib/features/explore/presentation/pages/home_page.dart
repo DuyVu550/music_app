@@ -23,6 +23,8 @@ import '../../../../core/utils/format_utils.dart';
 import '../../../auth/presentation/controllers/auth_notifier.dart';
 import '../../../auth/presentation/pages/change_password_page.dart';
 import '../../../auth/presentation/pages/profile_page.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
+import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/features/favorites/presentation/pages/favorite_songs_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -881,7 +883,22 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           ],
         ),
-        trailing: const Icon(Icons.play_arrow_rounded, color: Colors.cyanAccent),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FavoriteButton(trackId: track.id, size: 20),
+            IconButton(
+              icon: const Icon(Icons.more_vert, color: Colors.white70),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => SongOptionsBottomSheet(track: track),
+                );
+              },
+            ),
+          ],
+        ),
         onTap: () {
           ref.read(playerNotifierProvider.notifier).playTrack(track);
         },
