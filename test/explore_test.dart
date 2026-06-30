@@ -91,7 +91,7 @@ void main() {
       expect(tracks.first.coverUrl, isNotNull);
     });
 
-    test('getAllTracks parses and returns Gist tracks along with Branium tracks', () async {
+    test('getAllTracks returns only Branium tracks and ignores Gist', () async {
       final mockGistJson = [
         {
           "name": "Radiohead",
@@ -114,16 +114,9 @@ void main() {
 
       final tracks = await repository.getAllTracks();
       
-      // Should contain 2 Branium tracks (from setUp) and 1 Gist track
-      expect(tracks.length, 3);
-
-      final gistTrack = tracks.firstWhere((t) => t.id.startsWith('gist_'));
-      expect(gistTrack.title, 'Bloom');
-      expect(gistTrack.albumId, 'The King of Limbs');
-      expect(gistTrack.artistIds, ['Radiohead']);
-      expect(gistTrack.durationMs, (5 * 60 + 15) * 1000);
-      expect(gistTrack.url, startsWith('https://www.soundhelix.com/'));
-      expect(gistTrack.coverUrl, contains('picsum.photos'));
+      // Should contain only 2 Branium tracks (from setUp)
+      expect(tracks.length, 2);
+      expect(tracks.any((t) => t.id.startsWith('gist_')), isFalse);
     });
   });
 }

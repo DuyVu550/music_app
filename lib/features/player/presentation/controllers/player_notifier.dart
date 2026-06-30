@@ -154,11 +154,31 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
   }
 
   void nextTrack() {
-    ref.read(audioPlayerServiceProvider).seekToNext();
+    final current = state.value;
+    if (current != null && current.playlist.isNotEmpty) {
+      final currentTrack = current.currentTrack;
+      if (currentTrack != null) {
+        final currentIndex = current.playlist.indexWhere((t) => t.id == currentTrack.id);
+        if (currentIndex >= 0) {
+          final nextIndex = (currentIndex + 1) % current.playlist.length;
+          playTrack(current.playlist[nextIndex]);
+        }
+      }
+    }
   }
 
   void previousTrack() {
-    ref.read(audioPlayerServiceProvider).seekToPrevious();
+    final current = state.value;
+    if (current != null && current.playlist.isNotEmpty) {
+      final currentTrack = current.currentTrack;
+      if (currentTrack != null) {
+        final currentIndex = current.playlist.indexWhere((t) => t.id == currentTrack.id);
+        if (currentIndex >= 0) {
+          final prevIndex = (currentIndex - 1 + current.playlist.length) % current.playlist.length;
+          playTrack(current.playlist[prevIndex]);
+        }
+      }
+    }
   }
 
   void updatePosition(Duration position) {
