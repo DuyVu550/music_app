@@ -31,7 +31,7 @@ class AudioPlayerService {
         album: track.albumId,
         title: track.title,
         artist: track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
-        artUri: track.coverUrl != null && track.coverUrl!.startsWith('http') 
+        artUri: !kIsWeb && track.coverUrl != null && track.coverUrl!.startsWith('http') 
             ? Uri.parse(track.coverUrl!) 
             : null,
       ),
