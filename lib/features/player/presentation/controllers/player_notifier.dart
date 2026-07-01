@@ -40,6 +40,15 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
         if (current.isPlaying != isPlaying) {
           state = AsyncData(current.copyWith(isPlaying: isPlaying));
         }
+
+        // Fix for LoopMode.one on Web/PWA when hosted.
+        // When the browser fails to loop and reaches completed state,
+        // manually seek back to start and play.
+        if (jaState.processingState == ja.ProcessingState.completed &&
+            current.loopMode == PlayerLoopMode.one) {
+          audioService.seek(Duration.zero);
+          audioService.resume();
+        }
       }
     });
 
