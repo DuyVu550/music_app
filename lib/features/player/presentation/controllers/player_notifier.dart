@@ -5,6 +5,7 @@ import '../../domain/entities/track.dart';
 import '../../domain/repositories/track_repository.dart';
 import '../../domain/entities/player_loop_mode.dart';
 import 'package:just_audio/just_audio.dart' as ja;
+import 'sleep_timer_notifier.dart';
 
 
 class PlayerNotifier extends AsyncNotifier<PlayerState> {
@@ -63,6 +64,11 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
           // Actually, we can just dynamic cast it if we want. Let's see if we can do currentItem.id
           final newTrackId = (currentItem as dynamic).id;
           if (current.currentTrack?.id != newTrackId) {
+            final sleepTimer = ref.read(sleepTimerProvider);
+            if (sleepTimer.isEndOfTheSong) {
+              ref.read(sleepTimerProvider.notifier).triggerEndOfTheSongPause();
+            }
+
             // Find the track in the playlist
             try {
               final newTrack = current.playlist.firstWhere((t) => t.id == newTrackId);

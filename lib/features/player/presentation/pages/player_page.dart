@@ -8,6 +8,8 @@ import '../../../favorites/presentation/widgets/favorite_button.dart';
 
 import 'package:music_app/features/player/presentation/widgets/global_bottom_player.dart';
 import '../widgets/realtime_lyrics_view.dart';
+import '../widgets/equalizer_sheet.dart';
+import '../controllers/sleep_timer_notifier.dart';
 
 class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
@@ -47,6 +49,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
   @override
   Widget build(BuildContext context) {
     final playerStateAsync = ref.watch(playerNotifierProvider);
+    final sleepTimer = ref.watch(sleepTimerProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F1E),
@@ -224,6 +227,65 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                                 ],
                               ),
                             )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.tune_rounded, color: Colors.white70, size: 24),
+                              tooltip: 'Equalizer & Preset',
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  builder: (context) => const EqualizerSheet(),
+                                );
+                              },
+                            ),
+                            if (sleepTimer.isActive)
+                              Row(
+                                children: [
+                                  const Icon(Icons.timer_rounded, color: Colors.cyanAccent, size: 16),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    sleepTimer.isEndOfTheSong
+                                        ? 'Sau hết bài'
+                                        : _formatDuration(sleepTimer.remainingTime ?? Duration.zero),
+                                    style: const TextStyle(
+                                      color: Colors.cyanAccent,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else
+                              const Text(
+                                'Hẹn giờ tắt',
+                                style: TextStyle(color: Colors.white30, fontSize: 13),
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.timer_rounded,
+                                color: sleepTimer.isActive ? Colors.cyanAccent : Colors.white70,
+                                size: 24,
+                              ),
+                              tooltip: 'Hẹn giờ tắt',
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  builder: (context) => const EqualizerSheet(),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
