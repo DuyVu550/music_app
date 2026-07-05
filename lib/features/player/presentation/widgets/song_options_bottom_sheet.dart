@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/track.dart';
 import '../controllers/player_notifier.dart';
+import '../../../playlist/presentation/widgets/add_to_playlist_sheet.dart';
 
 class SongOptionsBottomSheet extends ConsumerWidget {
   final Track track;
@@ -179,6 +180,25 @@ class SongOptionsBottomSheet extends ConsumerWidget {
                       style: const TextStyle(color: Colors.cyanAccent),
                     ),
                   ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.playlist_add_rounded,
+                color: Colors.white70,
+              ),
+              title: const Text(
+                'Thêm vào Playlist',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) => AddToPlaylistSheet(track: track),
                 );
               },
             ),

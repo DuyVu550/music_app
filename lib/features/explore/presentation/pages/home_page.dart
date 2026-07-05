@@ -26,6 +26,7 @@ import '../../../auth/presentation/pages/profile_page.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/features/favorites/presentation/pages/favorite_songs_page.dart';
+import 'package:music_app/features/playlist/presentation/pages/my_playlists_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -177,6 +178,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const FavoriteSongsPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.queue_music_rounded, color: Colors.cyanAccent),
+              title: const Text('Playlist của tôi', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPlaylistsPage()));
               },
             ),
             const Divider(color: Colors.white24),

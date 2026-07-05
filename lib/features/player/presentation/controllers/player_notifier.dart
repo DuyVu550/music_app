@@ -151,6 +151,22 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
     }
   }
 
+  void playPlaylist(List<Track> tracks, {int initialIndex = 0}) {
+    if (tracks.isEmpty) return;
+    final current = state.value;
+    if (current != null) {
+      state = AsyncData(
+        current.copyWith(
+          currentTrack: tracks[initialIndex],
+          playlist: tracks,
+          isPlaying: true,
+        ),
+      );
+      ref.read(audioPlayerServiceProvider).setPlaylist(tracks, initialIndex: initialIndex);
+      _isPlaylistInitialized = true;
+    }
+  }
+
   void togglePlay() {
     final current = state.value;
     if (current != null) {
