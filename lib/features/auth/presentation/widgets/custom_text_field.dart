@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
+  final int? maxLines;
 
   const CustomTextField({
     super.key,
@@ -18,6 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.readOnly = false,
     this.keyboardType = TextInputType.text,
     this.validator,
+    this.maxLines = 1,
   });
 
   @override
@@ -27,6 +29,7 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       readOnly: readOnly,
       keyboardType: keyboardType,
+      maxLines: maxLines,
       style: const TextStyle(color: Colors.white, fontSize: 16),
       decoration: InputDecoration(
         labelText: labelText,

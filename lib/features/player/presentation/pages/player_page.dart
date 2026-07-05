@@ -7,6 +7,7 @@ import '../controllers/player_notifier.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 
 import 'package:music_app/features/player/presentation/widgets/global_bottom_player.dart';
+import '../widgets/realtime_lyrics_view.dart';
 
 class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
@@ -17,6 +18,7 @@ class PlayerPage extends ConsumerStatefulWidget {
 
 class _PlayerPageState extends ConsumerState<PlayerPage> {
   late final BottomPlayerVisibilityNotifier _visibilityNotifier;
+  bool _showLyrics = false;
 
   @override
   void initState() {
@@ -57,6 +59,19 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.lyrics_rounded,
+              color: _showLyrics ? Colors.cyanAccent : Colors.white70,
+            ),
+            onPressed: () {
+              setState(() {
+                _showLyrics = !_showLyrics;
+              });
+            },
+          ),
+        ],
       ),
       body: playerStateAsync.when(
         data: (state) {
@@ -76,10 +91,32 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                       const SizedBox(height: 20),
                       // Album Art with shadow
                       // Spinning Album Art (Vinyl Style)
-                      SpinningAlbumArt(
-                        track: track,
-                        isPlaying: state.isPlaying,
-                      ),
+                      _showLyrics
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showLyrics = false;
+                                });
+                              },
+                              child: SizedBox(
+                                height: 280,
+                                child: RealtimeLyricsView(
+                                  track: track,
+                                  currentPosition: state.position,
+                                ),
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showLyrics = true;
+                                });
+                              },
+                              child: SpinningAlbumArt(
+                                track: track,
+                                isPlaying: state.isPlaying,
+                              ),
+                            ),
                       const SizedBox(height: 32),
 
                       // Title and Subtitle

@@ -16,6 +16,7 @@ abstract class Track with _$Track {
     @Default(false) bool isExplicit,
     String? coverUrl,
     @Default(0) int listeners,
+    String? lyrics,
   }) = _Track;
 
   factory Track.fromJson(Map<String, dynamic> json) => _$TrackFromJson(json);

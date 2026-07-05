@@ -20,6 +20,7 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
   late TextEditingController _artistController;
   late TextEditingController _audioUrlController;
   late TextEditingController _coverUrlController;
+  late TextEditingController _lyricsController;
   bool _isLoading = false;
 
   @override
@@ -29,6 +30,7 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
     _artistController = TextEditingController(text: widget.song?.artist ?? '');
     _audioUrlController = TextEditingController(text: widget.song?.audioUrl ?? '');
     _coverUrlController = TextEditingController(text: widget.song?.coverUrl ?? '');
+    _lyricsController = TextEditingController(text: widget.song?.lyrics ?? '');
   }
 
   @override
@@ -37,6 +39,7 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
     _artistController.dispose();
     _audioUrlController.dispose();
     _coverUrlController.dispose();
+    _lyricsController.dispose();
     super.dispose();
   }
 
@@ -53,6 +56,7 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
             audioUrl: _audioUrlController.text.trim(),
             coverUrl: _coverUrlController.text.trim(),
             createdAt: DateTime.now(),
+            lyrics: _lyricsController.text.trim().isNotEmpty ? _lyricsController.text.trim() : null,
           );
           await controller.addSong(newSong);
         } else {
@@ -61,6 +65,7 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
             artist: _artistController.text.trim(),
             audioUrl: _audioUrlController.text.trim(),
             coverUrl: _coverUrlController.text.trim(),
+            lyrics: _lyricsController.text.trim().isNotEmpty ? _lyricsController.text.trim() : null,
           );
           await controller.updateSong(updatedSong);
         }
@@ -122,6 +127,13 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
                 controller: _coverUrlController,
                 labelText: 'Link ảnh bìa (Cover URL)',
                 prefixIcon: Icons.image,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: _lyricsController,
+                labelText: 'Lời bài hát (LRC hoặc văn bản thô)',
+                prefixIcon: Icons.text_snippet_rounded,
+                maxLines: 5,
               ),
               const SizedBox(height: 32),
               GradientButton(

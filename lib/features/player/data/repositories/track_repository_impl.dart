@@ -113,6 +113,7 @@ class TrackRepositoryImpl implements TrackRepository {
               ? null
               : data['coverUrl']?.toString(),
           listeners: 0,
+          lyrics: data['lyrics']?.toString(),
         );
       }).toList();
     } catch (e) {
@@ -152,6 +153,7 @@ class TrackRepositoryImpl implements TrackRepository {
               ? null
               : data['coverUrl']?.toString(),
           listeners: 0,
+          lyrics: data['lyrics']?.toString(),
         );
       }).toList();
 
@@ -204,6 +206,7 @@ class TrackRepositoryImpl implements TrackRepository {
               ? null
               : data['coverUrl']?.toString(),
           listeners: 0,
+          lyrics: data['lyrics']?.toString(),
         );
       }).toList();
 

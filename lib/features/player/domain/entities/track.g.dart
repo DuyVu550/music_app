@@ -21,6 +21,7 @@ _Track _$TrackFromJson(Map<String, dynamic> json) => _Track(
   isExplicit: json['isExplicit'] as bool? ?? false,
   coverUrl: json['coverUrl'] as String?,
   listeners: (json['listeners'] as num?)?.toInt() ?? 0,
+  lyrics: json['lyrics'] as String?,
 );
 
 Map<String, dynamic> _$TrackToJson(_Track instance) => <String, dynamic>{
@@ -34,4 +35,5 @@ Map<String, dynamic> _$TrackToJson(_Track instance) => <String, dynamic>{
   'isExplicit': instance.isExplicit,
   'coverUrl': instance.coverUrl,
   'listeners': instance.listeners,
+  'lyrics': instance.lyrics,
 };
