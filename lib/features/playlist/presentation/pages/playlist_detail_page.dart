@@ -7,11 +7,27 @@ import '../../../player/domain/entities/track.dart';
 import '../../../player/presentation/controllers/player_notifier.dart';
 import '../../../player/presentation/pages/player_page.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
+import '../widgets/add_songs_to_playlist_sheet.dart';
 
 class PlaylistDetailPage extends ConsumerWidget {
   final Playlist playlist;
 
   const PlaylistDetailPage({super.key, required this.playlist});
+
+  void _showAddSongsSheet(BuildContext context, Playlist currentPlaylist) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (context, scrollController) => AddSongsToPlaylistSheet(playlist: currentPlaylist),
+      ),
+    );
+  }
 
   void _showRemoveConfirmDialog(
     BuildContext context,
@@ -113,6 +129,17 @@ class PlaylistDetailPage extends ConsumerWidget {
                     backgroundColor: const Color(0xFF0F0F1E),
                     elevation: 0,
                     iconTheme: const IconThemeData(color: Colors.white),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.playlist_add_rounded,
+                          color: Colors.cyanAccent,
+                          size: 28,
+                        ),
+                        tooltip: 'Thêm bài hát',
+                        onPressed: () => _showAddSongsSheet(context, currentPlaylist),
+                      ),
+                    ],
                     flexibleSpace: FlexibleSpaceBar(
                       background: Stack(
                         fit: StackFit.expand,
@@ -300,22 +327,39 @@ class PlaylistDetailPage extends ConsumerWidget {
 
                   // Songs List
                   if (tracks.isEmpty)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.music_off_rounded,
                               size: 64,
                               color: Colors.white24,
                             ),
-                            SizedBox(height: 16),
-                            Text(
+                            const SizedBox(height: 16),
+                            const Text(
                               'Không có bài hát nào trong playlist này.',
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () => _showAddSongsSheet(context, currentPlaylist),
+                              icon: const Icon(Icons.add_rounded),
+                              label: const Text('Thêm bài hát'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.cyanAccent,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
                           ],
