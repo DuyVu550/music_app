@@ -1,8 +1,5 @@
-import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' hide Category;
-import 'package:dio/dio.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../../domain/entities/track.dart';
@@ -10,117 +7,51 @@ import '../../domain/repositories/track_repository.dart';
 import '../../../explore/domain/entities/category.dart';
 import '../../../explore/domain/entities/artist.dart';
 
-/// Repository kết nối với Branium API (thantrieu.com) và Gist URL
+/// Repository kết nối với Firestore để lấy danh sách bài hát.
 /// Fetch toàn bộ danh sách nhạc một lần và cache lại.
 class TrackRepositoryImpl implements TrackRepository {
-  final Dio _dio;
+  final FirebaseFirestore? _firestore;
   List<Track>? _cachedTracks;
   List<Artist>? _cachedArtists;
   final Map<String, List<Track>> _categoryTracksCache = {};
   final Map<String, List<Track>> _artistTracksCache = {};
 
-  TrackRepositoryImpl({Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-              },
-            ),
-          );
+  TrackRepositoryImpl({FirebaseFirestore? firestore, List<Track>? initialTracks})
+    : _firestore = firestore,
+      _cachedTracks = initialTracks;
 
   Future<void> _fetchAllTracksIfNeeded() async {
     if (_cachedTracks != null) return;
 
-    List<Track> braniumTracks = [];
-
-    // Fetch Branium API
-    try {
-      final response = await _dio
-          .get('https://thantrieu.com/resources/braniumapis/songs.json')
-          .timeout(const Duration(seconds: 5));
-      var data = response.data;
-      if (data is String) {
-        data = jsonDecode(data);
-      }
-      final List<dynamic> songsJson = (data is Map) ? data['songs'] : [];
-      braniumTracks = songsJson.map((json) {
-        return Track(
-          id: json['id']?.toString() ?? '',
-          title: json['title']?.toString() ?? 'Unknown',
-          url: json['source']?.toString() ?? '',
-          albumId: json['album']?.toString() ?? '',
-          artistIds: [json['artist']?.toString() ?? 'Unknown Artist'],
-          // Convert seconds to milliseconds
-          durationMs: (json['duration'] is int)
-              ? (json['duration'] as int) * 1000
-              : int.tryParse(json['duration'].toString()) != null
-              ? int.parse(json['duration'].toString()) * 1000
-              : 0,
-          coverUrl: json['image']?.toString(),
-          listeners: json['counter'] is int
-              ? json['counter'] as int
-              : int.tryParse(json['counter'].toString()) ?? 0,
-        );
-      }).toList();
-    } catch (e) {
-      debugPrint('Error fetching tracks from Branium API, trying local assets fallback: $e');
-      try {
-        final jsonStr = await rootBundle.loadString('assets/songs.json');
-        final Map<String, dynamic> data = jsonDecode(jsonStr);
-        final List<dynamic> songsJson = data['songs'] is List ? data['songs'] : [];
-        braniumTracks = songsJson.map((json) {
-          return Track(
-            id: json['id']?.toString() ?? '',
-            title: json['title']?.toString() ?? 'Unknown',
-            url: json['source']?.toString() ?? '',
-            albumId: json['album']?.toString() ?? '',
-            artistIds: [json['artist']?.toString() ?? 'Unknown Artist'],
-            durationMs: (json['duration'] is int)
-                ? (json['duration'] as int) * 1000
-                : int.tryParse(json['duration'].toString()) != null
-                ? int.parse(json['duration'].toString()) * 1000
-                : 0,
-            coverUrl: json['image']?.toString(),
-            listeners: json['counter'] is int
-                ? json['counter'] as int
-                : int.tryParse(json['counter'].toString()) ?? 0,
-          );
-        }).toList();
-        debugPrint('Successfully loaded thantrieu songs from local assets fallback!');
-      } catch (assetErr) {
-        debugPrint('Error loading thantrieu songs from assets fallback: $assetErr');
-      }
-    }
-
     List<Track> firestoreTracks = [];
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('songs')
-          .get()
-          .timeout(const Duration(seconds: 3));
-      firestoreTracks = snapshot.docs.map((doc) {
-        final data = doc.data();
-        return Track(
-          id: doc.id,
-          title: data['title']?.toString() ?? 'Unknown',
-          url: data['audioUrl']?.toString() ?? '',
-          albumId: 'Admin Upload',
-          artistIds: [data['artist']?.toString() ?? 'Unknown Artist'],
-          durationMs: 0,
-          coverUrl: (data['coverUrl']?.toString().isEmpty ?? true)
-              ? null
-              : data['coverUrl']?.toString(),
-          listeners: 0,
-          lyrics: data['lyrics']?.toString(),
-        );
-      }).toList();
+      if (Firebase.apps.isNotEmpty) {
+        final snapshot = await (_firestore ?? FirebaseFirestore.instance)
+            .collection('songs')
+            .get()
+            .timeout(const Duration(seconds: 5));
+        firestoreTracks = snapshot.docs.map((doc) {
+          final data = doc.data();
+          return Track(
+            id: doc.id,
+            title: data['title']?.toString() ?? 'Unknown',
+            url: data['audioUrl']?.toString() ?? '',
+            albumId: 'Admin Upload',
+            artistIds: [data['artist']?.toString() ?? 'Unknown Artist'],
+            durationMs: 0,
+            coverUrl: (data['coverUrl']?.toString().isEmpty ?? true)
+                ? null
+                : data['coverUrl']?.toString(),
+            listeners: 0,
+            lyrics: data['lyrics']?.toString(),
+          );
+        }).toList();
+      }
     } catch (e) {
       debugPrint('Error fetching tracks from Firestore: $e');
     }
 
-    _cachedTracks = [...firestoreTracks, ...braniumTracks];
+    _cachedTracks = firestoreTracks;
   }
 
   @override
