@@ -10,6 +10,7 @@ import 'package:music_app/features/player/presentation/widgets/global_bottom_pla
 import '../widgets/realtime_lyrics_view.dart';
 import '../widgets/equalizer_sheet.dart';
 import '../controllers/sleep_timer_notifier.dart';
+import '../../../comments/presentation/widgets/comments_sheet.dart';
 
 class PlayerPage extends ConsumerStatefulWidget {
   const PlayerPage({super.key});
@@ -238,7 +239,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.tune_rounded, color: Colors.white70, size: 24),
-                              tooltip: 'Equalizer & Preset',
+                              tooltip: 'Equalizer',
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
@@ -248,47 +249,57 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                                 );
                               },
                             ),
-                            if (sleepTimer.isActive)
-                              Row(
-                                children: [
-                                  const Icon(Icons.timer_rounded, color: Colors.cyanAccent, size: 16),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    sleepTimer.isEndOfTheSong
-                                        ? 'Sau hết bài'
-                                        : _formatDuration(sleepTimer.remainingTime ?? Duration.zero),
-                                    style: const TextStyle(
-                                      color: Colors.cyanAccent,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            else
-                              const Text(
-                                'Hẹn giờ tắt',
-                                style: TextStyle(color: Colors.white30, fontSize: 13),
-                              ),
                             IconButton(
-                              icon: Icon(
-                                Icons.timer_rounded,
-                                color: sleepTimer.isActive ? Colors.cyanAccent : Colors.white70,
-                                size: 24,
-                              ),
-                              tooltip: 'Hẹn giờ tắt',
+                              icon: const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white70, size: 24),
+                              tooltip: 'Bình luận',
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
                                   backgroundColor: Colors.transparent,
                                   isScrollControlled: true,
-                                  builder: (context) => const EqualizerSheet(),
+                                  builder: (context) => CommentsSheet(songId: track.id),
                                 );
                               },
+                            ),
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.timer_rounded,
+                                    color: sleepTimer.isActive ? Colors.cyanAccent : Colors.white70,
+                                    size: 24,
+                                  ),
+                                  tooltip: 'Hẹn giờ tắt',
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      builder: (context) => const EqualizerSheet(),
+                                    );
+                                  },
+                                ),
+                                if (sleepTimer.isActive)
+                                  Positioned(
+                                    bottom: 0,
+                                    child: Text(
+                                      sleepTimer.isEndOfTheSong
+                                          ? 'Hết bài'
+                                          : _formatDuration(sleepTimer.remainingTime ?? Duration.zero),
+                                      style: const TextStyle(
+                                        color: Colors.cyanAccent,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 24),
 
                       Row(
