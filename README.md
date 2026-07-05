@@ -34,9 +34,28 @@ Một ứng dụng Music App (nghe nhạc trực tuyến và ngoại tuyến) đ
 - **Quản lý Hàng đợi (Queue)**: Xem danh sách phát hiện tại bằng Bottom Sheet kéo vuốt và hỗ trợ **xóa bài hát khỏi hàng chờ** ngay tức thì.
 - **Global Control**: Bottom Player Widget luôn hiện diện ở mọi màn hình để điều khiển nhanh.
 - **Push Notification**: Điều khiển phát nhạc trực tiếp trên thanh thông báo hệ thống (Play/Pause, Next, Back, Close).
+- **Bộ cân bằng âm thanh & Hẹn giờ tắt (Equalizer & Sleep Timer) [NEW]**:
+  - Hẹn giờ tắt nhạc tự động theo thời gian (5m, 15m, 30m, 45m, 60m) hoặc tùy chọn **"Hết bài hát hiện tại"** (tự động dừng khi bài hát đang phát kết thúc).
+  - Tích hợp Equalizer 5-Band Slider (60Hz, 230Hz, 910Hz, 4kHz, 14kHz) với các preset mẫu (Flat, Pop, Rock, Jazz, Classical, Bass Booster).
+  - Trình mô phỏng sóng nhạc **Audio Visualizer** chuyển sắc lung linh chuyển động trực quan theo nhịp bài hát.
+- **Đồng bộ lời bài hát thời gian thực (Realtime Lyrics Sync) [NEW]**:
+  - Chạm vào đĩa nhạc để chuyển đổi qua lại giữa hình đĩa xoay Vinyl và màn hình lời bài hát.
+  - Hỗ trợ định dạng lời nhạc LRC, tự động cuộn mượt mà và làm nổi bật (highlight/center) dòng lời hát đang phát.
+
+### 💬 Bình luận & Phản hồi (Comments & Feedback)
+- **Hệ thống bình luận thời gian thực (Comments Section) [NEW]**:
+  - Cho phép người dùng xem và đăng bình luận thảo luận dưới mỗi bài hát trong thời gian thực.
+  - Avatar đại diện phối màu tự động ngẫu nhiên theo tên người dùng, hiển thị mốc thời gian đăng thân thiện ("Vừa xong", "10 phút trước"...).
+  - Phân quyền bảo mật: Cho phép chính chủ bình luận hoặc tài khoản Admin thực hiện xóa bình luận ngay tại giao diện.
+- **Feedback**: Gửi đánh giá theo số sao (⭐) kèm ý kiến đóng góp lưu về Firestore.
+- **Liên hệ**: Tích hợp đầy đủ các kênh liên hệ của nhà phát triển: Gmail, Website, Điện thoại, Facebook, Skype, Zalo, Youtube.
 
 ### 🌟 Hệ thống khám phá & Danh sách phát (Explore & Playlists)
 - **Trang chủ (Home Page)**: Banner bài hát nổi bật tự động chạy (Auto Run), các mục đề cử bài hát mới nhất, phổ biến và nghệ sĩ nổi bật (Realtime).
+- **Danh sách phát cá nhân của người dùng (User Custom Playlists) [NEW]**:
+  - Hỗ trợ người dùng tự tạo playlist cá nhân (tên, mô tả, ảnh bìa tự chọn).
+  - Cho phép chỉnh sửa thông tin, xóa playlist.
+  - Tích hợp giao diện **Tìm kiếm & Thêm bài hát trực tiếp** vào playlist vô cùng mượt mà ngay tại trang chi tiết playlist.
 - **Phân loại âm nhạc**:
   - Trang danh sách **Thể loại (Category List)** dạng lưới hiển thị sinh động.
   - Trang danh sách **Nghệ sĩ (Artist List)** dạng avatar tròn có hiệu ứng neon.
@@ -48,6 +67,7 @@ Một ứng dụng Music App (nghe nhạc trực tuyến và ngoại tuyến) đ
   - **Ưu tiên phát kế tiếp (Play Next)**: Chèn bài hát ngay sau bài đang chạy.
   - **Thêm vào danh sách phát (Add to queue)**: Thêm bài hát vào cuối hàng chờ.
   - **Xóa khỏi danh sách phát (Remove from queue)**: Xóa bài hát khỏi hàng chờ.
+  - **Thêm vào Playlist**: Thêm bài hát vào danh sách phát cá nhân của người dùng.
 
 ### 🛡 Quản lý tài khoản (Auth)
 - **Hệ thống phân quyền**: Phân chia 2 Role riêng biệt: **Admin** & **User**.
@@ -61,10 +81,6 @@ Một ứng dụng Music App (nghe nhạc trực tuyến và ngoại tuyến) đ
 - **Quản lý Nghệ sĩ (CRUD) [VIP]**: Cho phép hiển thị danh sách nghệ sĩ, thêm nghệ sĩ mới, chỉnh sửa tên/ảnh và xóa nghệ sĩ trực tiếp.
 - **Quản lý Feedback**: Xem danh sách phản hồi từ người dùng và hỗ trợ xóa phản hồi.
 - **Tự động Khởi tạo Dữ liệu (Autoseed) [VIP]**: Tự động tạo dữ liệu mẫu cho Thể loại và Nghệ sĩ từ các bài hát hiện có nếu dữ liệu trên Firestore trống.
-
-### 💬 Phản hồi & Liên hệ (Feedback & Contact)
-- **Feedback**: Gửi đánh giá theo số sao (⭐) kèm ý kiến đóng góp lưu về Firestore.
-- **Liên hệ**: Tích hợp đầy đủ các kênh liên hệ của nhà phát triển: Gmail, Website, Điện thoại, Facebook, Skype, Zalo, Youtube.
 
 ---
 
