@@ -13,13 +13,21 @@ class PlaylistDetailPage extends ConsumerWidget {
 
   const PlaylistDetailPage({super.key, required this.playlist});
 
-  void _showRemoveConfirmDialog(BuildContext context, WidgetRef ref, Playlist currentPlaylist, Track track) {
+  void _showRemoveConfirmDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Playlist currentPlaylist,
+    Track track,
+  ) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF16162A),
-          title: const Text('Xóa khỏi Playlist', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Xóa khỏi Playlist',
+            style: TextStyle(color: Colors.white),
+          ),
           content: Text(
             'Bạn có chắc chắn muốn xóa "${track.title}" khỏi playlist "${currentPlaylist.name}" không?',
             style: const TextStyle(color: Colors.white70),
@@ -52,7 +60,10 @@ class PlaylistDetailPage extends ConsumerWidget {
                   );
                 }
               },
-              child: const Text('Xóa', style: TextStyle(color: Colors.redAccent)),
+              child: const Text(
+                'Xóa',
+                style: TextStyle(color: Colors.redAccent),
+              ),
             ),
           ],
         );
@@ -89,7 +100,9 @@ class PlaylistDetailPage extends ConsumerWidget {
                   .whereType<Track>()
                   .toList();
 
-              final hasImage = currentPlaylist.coverUrl != null && currentPlaylist.coverUrl!.isNotEmpty;
+              final hasImage =
+                  currentPlaylist.coverUrl != null &&
+                  currentPlaylist.coverUrl!.isNotEmpty;
 
               return CustomScrollView(
                 slivers: [
@@ -113,7 +126,10 @@ class PlaylistDetailPage extends ConsumerWidget {
                               : Container(
                                   decoration: const BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [Color(0xFF1F3C75), Color(0xFF0F0F1E)],
+                                      colors: [
+                                        Color(0xFF1F3C75),
+                                        Color(0xFF0F0F1E),
+                                      ],
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                     ),
@@ -155,18 +171,29 @@ class PlaylistDetailPage extends ConsumerWidget {
                                     color: Colors.white,
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
-                                    shadows: [Shadow(blurRadius: 10, color: Colors.black)],
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  currentPlaylist.description ?? 'Không có mô tả',
+                                  currentPlaylist.description ??
+                                      'Không có mô tả',
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.7),
                                     fontSize: 13,
-                                    shadows: const [Shadow(blurRadius: 10, color: Colors.black)],
+                                    shadows: const [
+                                      Shadow(
+                                        blurRadius: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -190,22 +217,42 @@ class PlaylistDetailPage extends ConsumerWidget {
                   if (tracks.isNotEmpty)
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
                         child: Row(
                           children: [
                             Expanded(
                               child: ElevatedButton.icon(
                                 onPressed: () {
-                                  ref.read(playerNotifierProvider.notifier).playPlaylist(tracks, initialIndex: 0);
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const PlayerPage()));
+                                  ref
+                                      .read(playerNotifierProvider.notifier)
+                                      .playPlaylist(tracks, initialIndex: 0);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const PlayerPage(),
+                                    ),
+                                  );
                                 },
-                                icon: const Icon(Icons.play_arrow_rounded, color: Colors.black),
-                                label: const Text('Phát tất cả', style: TextStyle(fontWeight: FontWeight.bold)),
+                                icon: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: Colors.black,
+                                ),
+                                label: const Text(
+                                  'Phát tất cả',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.cyanAccent,
                                   foregroundColor: Colors.black,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                               ),
                             ),
@@ -213,16 +260,36 @@ class PlaylistDetailPage extends ConsumerWidget {
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                  final shuffled = List<Track>.from(tracks)..shuffle();
-                                  ref.read(playerNotifierProvider.notifier).playPlaylist(shuffled, initialIndex: 0);
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const PlayerPage()));
+                                  final shuffled = List<Track>.from(tracks)
+                                    ..shuffle();
+                                  ref
+                                      .read(playerNotifierProvider.notifier)
+                                      .playPlaylist(shuffled, initialIndex: 0);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const PlayerPage(),
+                                    ),
+                                  );
                                 },
-                                icon: const Icon(Icons.shuffle, color: Colors.cyanAccent),
-                                label: const Text('Phát ngẫu nhiên', style: TextStyle(color: Colors.white)),
+                                icon: const Icon(
+                                  Icons.shuffle,
+                                  color: Colors.cyanAccent,
+                                ),
+                                label: const Text(
+                                  'Phát ngẫu nhiên',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                                 style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: Colors.cyanAccent),
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  side: const BorderSide(
+                                    color: Colors.cyanAccent,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                               ),
                             ),
@@ -238,11 +305,18 @@ class PlaylistDetailPage extends ConsumerWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.music_off_rounded, size: 64, color: Colors.white24),
+                            Icon(
+                              Icons.music_off_rounded,
+                              size: 64,
+                              color: Colors.white24,
+                            ),
                             SizedBox(height: 16),
                             Text(
                               'Không có bài hát nào trong playlist này.',
-                              style: TextStyle(color: Colors.white54, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -250,101 +324,154 @@ class PlaylistDetailPage extends ConsumerWidget {
                     )
                   else
                     SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final track = tracks[index];
-                          final hasNetworkImage = track.coverUrl != null && track.coverUrl!.startsWith('http');
-
-                          return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: hasNetworkImage
-                                  ? Image.network(
-                                      track.coverUrl!,
-                                      width: 48,
-                                      height: 48,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                                        'assets/images/album_placeholder.png',
-                                        width: 48,
-                                        height: 48,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : Image.asset(
-                                      'assets/images/album_placeholder.png',
-                                      width: 48,
-                                      height: 48,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            title: Text(
-                              track.title,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Text(
-                              track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FavoriteButton(trackId: track.id, size: 20),
-                                PopupMenuButton<String>(
-                                  icon: const Icon(Icons.more_vert, color: Colors.white70),
-                                  color: const Color(0xFF16162A),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  onSelected: (value) {
-                                    if (value == 'remove') {
-                                      _showRemoveConfirmDialog(context, ref, currentPlaylist, track);
-                                    } else if (value == 'add_queue') {
-                                      ref.read(playerNotifierProvider.notifier).addToQueue(track);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: const Color(0xFF16162A),
-                                          content: Text('Đã thêm "${track.title}" vào danh sách phát'),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final track = tracks[index];
+                        final hasNetworkImage =
+                            track.coverUrl != null &&
+                            track.coverUrl!.startsWith('http');
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 6,
+                          ),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: hasNetworkImage
+                                ? Image.network(
+                                    track.coverUrl!,
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) => Image.asset(
+                                          'assets/images/album_placeholder.png',
+                                          width: 48,
+                                          height: 48,
+                                          fit: BoxFit.cover,
                                         ),
-                                      );
-                                    }
-                                  },
-                                  itemBuilder: (BuildContext context) => [
-                                    const PopupMenuItem(
-                                      value: 'add_queue',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.queue_music_rounded, color: Colors.white70, size: 18),
-                                          SizedBox(width: 8),
-                                          Text('Thêm vào hàng chờ', style: TextStyle(color: Colors.white)),
-                                        ],
-                                      ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: 'remove',
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
-                                          SizedBox(width: 8),
-                                          Text('Xóa khỏi Playlist', style: TextStyle(color: Colors.redAccent)),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  )
+                                : Image.asset(
+                                    'assets/images/album_placeholder.png',
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                          title: Text(
+                            track.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
-                            onTap: () {
-                              ref.read(playerNotifierProvider.notifier).playPlaylist(tracks, initialIndex: index);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const PlayerPage()));
-                            },
-                          );
-                        },
-                        childCount: tracks.length,
-                      ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            track.artistIds.isNotEmpty
+                                ? track.artistIds.first
+                                : 'Unknown Artist',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FavoriteButton(trackId: track.id, size: 20),
+                              PopupMenuButton<String>(
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white70,
+                                ),
+                                color: const Color(0xFF16162A),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                onSelected: (value) {
+                                  if (value == 'remove') {
+                                    _showRemoveConfirmDialog(
+                                      context,
+                                      ref,
+                                      currentPlaylist,
+                                      track,
+                                    );
+                                  } else if (value == 'add_queue') {
+                                    ref
+                                        .read(playerNotifierProvider.notifier)
+                                        .addToQueue(track);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: const Color(
+                                          0xFF16162A,
+                                        ),
+                                        content: Text(
+                                          'Đã thêm "${track.title}" vào danh sách phát',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) => [
+                                  const PopupMenuItem(
+                                    value: 'add_queue',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.queue_music_rounded,
+                                          color: Colors.white70,
+                                          size: 18,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Thêm vào hàng chờ',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'remove',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.delete_outline_rounded,
+                                          color: Colors.redAccent,
+                                          size: 18,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Xóa khỏi Playlist',
+                                          style: TextStyle(
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            ref
+                                .read(playerNotifierProvider.notifier)
+                                .playPlaylist(tracks, initialIndex: index);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PlayerPage(),
+                              ),
+                            );
+                          },
+                        );
+                      }, childCount: tracks.length),
                     ),
                   const SliverToBoxAdapter(
                     child: SizedBox(height: 100), // Space for bottom player
@@ -352,20 +479,32 @@ class PlaylistDetailPage extends ConsumerWidget {
                 ],
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: Colors.cyanAccent),
+            ),
             error: (err, _) => Center(
-              child: Text('Lỗi tải bài hát: $err', style: const TextStyle(color: Colors.redAccent)),
+              child: Text(
+                'Lỗi tải bài hát: $err',
+                style: const TextStyle(color: Colors.redAccent),
+              ),
             ),
           ),
         );
       },
       loading: () => const Scaffold(
         backgroundColor: Color(0xFF0F0F1E),
-        body: Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.cyanAccent),
+        ),
       ),
       error: (err, _) => Scaffold(
         backgroundColor: const Color(0xFF0F0F1E),
-        body: Center(child: Text('Lỗi: $err', style: const TextStyle(color: Colors.redAccent))),
+        body: Center(
+          child: Text(
+            'Lỗi: $err',
+            style: const TextStyle(color: Colors.redAccent),
+          ),
+        ),
       ),
     );
   }
