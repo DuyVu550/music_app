@@ -107,127 +107,136 @@ class SongOptionsBottomSheet extends ConsumerWidget {
             const SizedBox(height: 16),
             const Divider(color: Colors.white10, height: 1),
             // Options list
-            ListTile(
-              leading: const Icon(
-                Icons.download_rounded,
-                color: Colors.cyanAccent,
-              ),
-              title: const Text(
-                'Tải bài hát',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.pop(context);
-                try {
-                  final url = Uri.parse(track.url);
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                  } else {
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('Không thể tải bài hát này.'),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.download_rounded,
+                        color: Colors.cyanAccent,
                       ),
-                    );
-                  }
-                } catch (e) {
-                  messenger.showSnackBar(
-                    SnackBar(content: Text('Lỗi khi tải: $e')),
-                  );
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.playlist_play_rounded,
-                color: Colors.white70,
-              ),
-              title: const Text(
-                'Ưu tiên phát kế tiếp',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                ref.read(playerNotifierProvider.notifier).playNext(track);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: const Color(0xFF16162A),
-                    content: Text(
-                      'Đã xếp "${track.title}" phát tiếp theo.',
-                      style: const TextStyle(color: Colors.cyanAccent),
-                    ),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.queue_music_rounded,
-                color: Colors.white70,
-              ),
-              title: const Text(
-                'Thêm vào danh sách phát',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                ref.read(playerNotifierProvider.notifier).addToQueue(track);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: const Color(0xFF16162A),
-                    content: Text(
-                      'Đã thêm "${track.title}" vào danh sách phát.',
-                      style: const TextStyle(color: Colors.cyanAccent),
-                    ),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.playlist_add_rounded,
-                color: Colors.white70,
-              ),
-              title: const Text(
-                'Thêm vào Playlist',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  isScrollControlled: true,
-                  builder: (context) => AddToPlaylistSheet(track: track),
-                );
-              },
-            ),
-            if (isInQueue)
-              ListTile(
-                leading: const Icon(
-                  Icons.remove_circle_outline_rounded,
-                  color: Colors.redAccent,
-                ),
-                title: const Text(
-                  'Xóa khỏi danh sách phát',
-                  style: TextStyle(color: Colors.redAccent),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  ref
-                      .read(playerNotifierProvider.notifier)
-                      .removeFromQueue(track);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: const Color(0xFF16162A),
-                      content: Text(
-                        'Đã xóa "${track.title}" khỏi danh sách phát.',
-                        style: const TextStyle(color: Colors.redAccent),
+                      title: const Text(
+                        'Tải bài hát',
+                        style: TextStyle(color: Colors.white),
                       ),
+                      onTap: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        Navigator.pop(context);
+                        try {
+                          final url = Uri.parse(track.url);
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          } else {
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Không thể tải bài hát này.'),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          messenger.showSnackBar(
+                            SnackBar(content: Text('Lỗi khi tải: $e')),
+                          );
+                        }
+                      },
                     ),
-                  );
-                },
+                    ListTile(
+                      leading: const Icon(
+                        Icons.playlist_play_rounded,
+                        color: Colors.white70,
+                      ),
+                      title: const Text(
+                        'Ưu tiên phát kế tiếp',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(playerNotifierProvider.notifier).playNext(track);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF16162A),
+                            content: Text(
+                              'Đã xếp "${track.title}" phát tiếp theo.',
+                              style: const TextStyle(color: Colors.cyanAccent),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.queue_music_rounded,
+                        color: Colors.white70,
+                      ),
+                      title: const Text(
+                        'Thêm vào danh sách phát',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(playerNotifierProvider.notifier).addToQueue(track);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF16162A),
+                            content: Text(
+                              'Đã thêm "${track.title}" vào danh sách phát.',
+                              style: const TextStyle(color: Colors.cyanAccent),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.playlist_add_rounded,
+                        color: Colors.white70,
+                      ),
+                      title: const Text(
+                        'Thêm vào Playlist',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (context) => AddToPlaylistSheet(track: track),
+                        );
+                      },
+                    ),
+                    if (isInQueue)
+                      ListTile(
+                        leading: const Icon(
+                          Icons.remove_circle_outline_rounded,
+                          color: Colors.redAccent,
+                        ),
+                        title: const Text(
+                          'Xóa khỏi danh sách phát',
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          ref
+                              .read(playerNotifierProvider.notifier)
+                              .removeFromQueue(track);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: const Color(0xFF16162A),
+                              content: Text(
+                                'Đã xóa "${track.title}" khỏi danh sách phát.',
+                                style: const TextStyle(color: Colors.redAccent),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                ),
               ),
+            ),
             const SizedBox(height: 12),
           ],
         ),
