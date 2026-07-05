@@ -121,6 +121,13 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
   void playTrack(Track track) {
     final current = state.value;
     if (current != null) {
+      if (current.currentTrack?.id == track.id) {
+        if (!current.isPlaying) {
+          ref.read(audioPlayerServiceProvider).resume();
+          state = AsyncData(current.copyWith(isPlaying: true));
+        }
+        return;
+      }
       int index = current.playlist.indexWhere((t) => t.id == track.id);
       List<Track> updatedPlaylist = current.playlist;
       bool playlistChanged = false;
@@ -155,9 +162,17 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
     if (tracks.isEmpty) return;
     final current = state.value;
     if (current != null) {
+      final selectedTrack = tracks[initialIndex];
+      if (current.currentTrack?.id == selectedTrack.id) {
+        if (!current.isPlaying) {
+          ref.read(audioPlayerServiceProvider).resume();
+          state = AsyncData(current.copyWith(isPlaying: true));
+        }
+        return;
+      }
       state = AsyncData(
         current.copyWith(
-          currentTrack: tracks[initialIndex],
+          currentTrack: selectedTrack,
           playlist: tracks,
           isPlaying: true,
         ),
