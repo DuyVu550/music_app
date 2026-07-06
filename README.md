@@ -42,6 +42,8 @@ Một ứng dụng Music App (nghe nhạc trực tuyến và ngoại tuyến) đ
 - **Đồng bộ lời bài hát thời gian thực (Realtime Lyrics Sync)**:
   - Chạm vào đĩa nhạc để chuyển đổi qua lại giữa hình đĩa xoay Vinyl và màn hình lời bài hát.
   - Hỗ trợ định dạng lời nhạc LRC, tự động cuộn mượt mà và làm nổi bật (highlight/center) dòng lời hát đang phát.
+- **Hiệu ứng chuyển bài mượt mà (Crossfade)**: Hỗ trợ tự động làm mờ âm thanh bài đang phát (fade out) và tăng dần âm thanh bài tiếp theo (fade in) chạy song song với khoảng thời gian tùy chọn từ 0 đến 12 giây bằng Slider trực quan.
+
 
 ### Bình luận & Phản hồi (Comments & Feedback)
 - **Hệ thống bình luận thời gian thực (Comments Section)**:
