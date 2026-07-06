@@ -157,7 +157,10 @@ void main() {
       expect(find.text('03:00'), findsOneWidget); // total duration
 
       // Verify Slider exists and has correct value & max
-      final sliderFinder = find.byType(Slider);
+      // Two Sliders exist: progress (max=180) and crossfade (max=12)
+      final sliderFinder = find.byWidgetPredicate(
+        (w) => w is Slider && w.max == 180.0,
+      );
       expect(sliderFinder, findsOneWidget);
       final Slider slider = tester.widget(sliderFinder);
       expect(slider.value, 45.0);
@@ -202,7 +205,10 @@ void main() {
       await tester.pump();
 
       // Ensure Slider does not crash and is clamped to max duration (180)
-      final sliderFinder = find.byType(Slider);
+      // Two Sliders exist: progress (max=180) and crossfade (max=12)
+      final sliderFinder = find.byWidgetPredicate(
+        (w) => w is Slider && w.max == 180.0,
+      );
       expect(sliderFinder, findsOneWidget);
       final Slider slider = tester.widget(sliderFinder);
       expect(slider.value, 180.0); // clamped to safeMax

@@ -281,6 +281,50 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                         ),
                       ),
 
+                      // Crossfade slider
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.compare_arrows_rounded,
+                                color: Colors.white54, size: 20),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Crossfade',
+                              style: TextStyle(
+                                  color: Colors.white54, fontSize: 13),
+                            ),
+                            Expanded(
+                              child: Slider(
+                                value: state.crossfadeDurationSeconds
+                                    .toDouble(),
+                                min: 0,
+                                max: 12,
+                                divisions: 12,
+                                activeColor: Colors.cyanAccent,
+                                inactiveColor: Colors.white24,
+                                onChanged: (val) {
+                                  ref
+                                      .read(playerNotifierProvider.notifier)
+                                      .setCrossfadeDuration(val.toInt());
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              width: 36,
+                              child: Text(
+                                state.crossfadeDurationSeconds == 0
+                                    ? 'Tắt'
+                                    : '${state.crossfadeDurationSeconds}s',
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 12),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 24),
 
                       Row(
