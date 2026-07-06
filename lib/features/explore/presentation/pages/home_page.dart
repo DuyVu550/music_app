@@ -29,6 +29,14 @@ import 'package:music_app/features/favorites/presentation/pages/favorite_songs_p
 import 'package:music_app/features/playlist/presentation/pages/my_playlists_page.dart';
 import '../../../player/presentation/pages/downloaded_tracks_page.dart';
 import 'music_wrapped_page.dart';
+import '../../../player/domain/entities/album.dart';
+import '../../../player/data/repositories/album_repository_impl.dart';
+import 'album_songs_page.dart';
+
+final homeAlbumsProvider = FutureProvider<List<Album>>((ref) async {
+  return ref.read(albumRepositoryImplProvider).getAllAlbums();
+});
+
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -106,6 +114,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final newTracksAsync = ref.watch(newTracksProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final artistsAsync = ref.watch(artistsProvider);
+    final albumsAsync = ref.watch(homeAlbumsProvider);
     final authState = ref.watch(authNotifierProvider);
     final user = authState.value;
 
@@ -448,6 +457,118 @@ class _HomePageState extends ConsumerState<HomePage> {
                     },
                     loading: () => const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
                     error: (err, stack) => Center(child: Text('Lỗi: $err', style: const TextStyle(color: Colors.red))),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ============================================================
+                // ALBUMS (Album nổi bật)
+                // ============================================================
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Album nổi bật',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 175,
+                  child: albumsAsync.when(
+                    data: (albums) {
+                      if (albums.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'Chưa có album nào',
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+                          ),
+                        );
+                      }
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        itemCount: albums.length,
+                        itemBuilder: (context, index) {
+                          final album = albums[index];
+                          final hasImage = album.coverUrl != null &&
+                              album.coverUrl!.isNotEmpty &&
+                              album.coverUrl!.startsWith('http');
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AlbumSongsPage(album: album),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 120,
+                              margin: const EdgeInsets.symmetric(horizontal: 6.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: hasImage
+                                        ? Image.network(
+                                            album.coverUrl!,
+                                            width: 120,
+                                            height: 120,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, _, _) =>
+                                                _albumPlaceholder(),
+                                          )
+                                        : _albumPlaceholder(),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    album.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    album.artistIds.isNotEmpty
+                                        ? album.artistIds.first
+                                        : 'Unknown Artist',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.5),
+                                      fontSize: 11,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: Colors.cyanAccent),
+                    ),
+                    error: (err, stack) => Center(
+                      child: Text(
+                        'Lỗi: $err',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -933,4 +1054,17 @@ class _HomePageState extends ConsumerState<HomePage> {
     ),
   );
 }
+
+Widget _albumPlaceholder() {
+  return Container(
+    width: 120,
+    height: 120,
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: 0.05),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: const Icon(Icons.album_rounded, color: Colors.cyanAccent, size: 40),
+  );
 }
+}
+
