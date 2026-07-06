@@ -17,6 +17,9 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
   Duration _listenedDuration = Duration.zero;
   bool _hasRecordedForCurrentTrack = false;
 
+  // Crossfade guard — reset when track changes or user seeks
+  bool _crossfadeTriggerGuard = false;
+
   @override
   Future<PlayerState> build() async {
     final repo = ref.watch(trackRepositoryProvider);
@@ -43,6 +46,28 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
               _listenedDuration.inSeconds >= 30) {
             _hasRecordedForCurrentTrack = true;
             _recordListeningEvent(track);
+          }
+        }
+
+        // Crossfade trigger
+        final crossfadeSecs = current.crossfadeDurationSeconds;
+        if (crossfadeSecs > 0 &&
+            current.loopMode != PlayerLoopMode.one &&
+            current.playlist.length > 1 &&
+            !_crossfadeTriggerGuard &&
+            current.isPlaying) {
+          final remaining = current.duration - position;
+          if (remaining > Duration.zero &&
+              remaining <= Duration(seconds: crossfadeSecs)) {
+            _crossfadeTriggerGuard = true;
+            final currentIndex = current.playlist
+                .indexWhere((t) => t.id == current.currentTrack?.id);
+            if (currentIndex >= 0) {
+              final nextIndex =
+                  (currentIndex + 1) % current.playlist.length;
+              final nextTrack = current.playlist[nextIndex];
+              ref.read(audioPlayerServiceProvider).startCrossfade(nextTrack);
+            }
           }
         }
       }
@@ -96,6 +121,7 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
             try {
               final newTrack = current.playlist.firstWhere((t) => t.id == newTrackId);
               state = AsyncData(current.copyWith(currentTrack: newTrack));
+              _crossfadeTriggerGuard = false; // reset for next track
             } catch (e) {
               // Not found
             }
@@ -258,6 +284,8 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
   }
 
   void seek(Duration position) {
+    _crossfadeTriggerGuard = false;
+    ref.read(audioPlayerServiceProvider).resetCrossfade();
     ref.read(audioPlayerServiceProvider).seek(position);
   }
 
@@ -362,6 +390,16 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
     final user = ref.read(authNotifierProvider).value;
     if (user != null) {
       repo.recordListeningHistory(user.id, track);
+    }
+  }
+
+  void setCrossfadeDuration(int seconds) {
+    final current = state.value;
+    if (current != null) {
+      ref.read(audioPlayerServiceProvider).setCrossfadeDuration(
+            Duration(seconds: seconds),
+          );
+      state = AsyncData(current.copyWith(crossfadeDurationSeconds: seconds));
     }
   }
 }

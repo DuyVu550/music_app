@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
@@ -16,19 +17,25 @@ final audioPlayerServiceProvider = Provider<AudioPlayerService>((ref) {
 });
 
 class AudioPlayerService {
-  late final AudioPlayer _audioPlayer;
+  late final AudioPlayer _primaryPlayer;
+  late final AudioPlayer _secondaryPlayer;
   ConcatenatingAudioSource? _playlist;
   AndroidEqualizer? _equalizer;
   final OfflineTrackService offlineService;
 
-  Stream<Duration> get positionStream => _audioPlayer.positionStream;
-  Stream<Duration?> get durationStream => _audioPlayer.durationStream;
-  Stream<PlayerState> get playerStateStream => _audioPlayer.playerStateStream;
+  // Crossfade state
+  Duration _crossfadeDuration = Duration.zero;
+  bool _isCrossfading = false;
+  Timer? _fadeTimer;
+
+  Stream<Duration> get positionStream => _primaryPlayer.positionStream;
+  Stream<Duration?> get durationStream => _primaryPlayer.durationStream;
+  Stream<PlayerState> get playerStateStream => _primaryPlayer.playerStateStream;
   Stream<SequenceState?> get sequenceStateStream =>
-      _audioPlayer.sequenceStateStream;
+      _primaryPlayer.sequenceStateStream;
   Stream<bool> get shuffleModeEnabledStream =>
-      _audioPlayer.shuffleModeEnabledStream;
-  Stream<LoopMode> get loopModeStream => _audioPlayer.loopModeStream;
+      _primaryPlayer.shuffleModeEnabledStream;
+  Stream<LoopMode> get loopModeStream => _primaryPlayer.loopModeStream;
 
   /// Getter for the equalizer (Android only). Null on other platforms.
   AndroidEqualizer? get equalizer => _equalizer;
@@ -36,14 +43,20 @@ class AudioPlayerService {
   AudioPlayerService({required this.offlineService}) {
     if (!kIsWeb && Platform.isAndroid) {
       _equalizer = AndroidEqualizer();
-      _audioPlayer = AudioPlayer(
+      _primaryPlayer = AudioPlayer(
         audioPipeline: AudioPipeline(
           androidAudioEffects: [_equalizer!],
         ),
       );
     } else {
-      _audioPlayer = AudioPlayer();
+      _primaryPlayer = AudioPlayer();
     }
+    // ponytail: secondary player has no equalizer pipeline; acceptable trade-off
+    _secondaryPlayer = AudioPlayer();
+  }
+
+  void setCrossfadeDuration(Duration duration) {
+    _crossfadeDuration = duration;
   }
 
   /// Build an AudioSource for a track – uses local file if downloaded.
@@ -76,12 +89,12 @@ class AudioPlayerService {
           await Future.wait(tracks.map((t) => _createAudioSource(t)));
 
       _playlist = ConcatenatingAudioSource(children: audioSources);
-      await _audioPlayer.stop();
-      await _audioPlayer.setAudioSource(
+      await _primaryPlayer.stop();
+      await _primaryPlayer.setAudioSource(
         _playlist!,
         initialIndex: initialIndex,
       );
-      await _audioPlayer.play();
+      await _primaryPlayer.play();
 
       // Enable equalizer after playback starts (Android only)
       if (_equalizer != null) {
@@ -109,7 +122,7 @@ class AudioPlayerService {
       setPlaylist([track]);
       return;
     }
-    final currentIndex = _audioPlayer.currentIndex ?? -1;
+    final currentIndex = _primaryPlayer.currentIndex ?? -1;
     final targetIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
 
     final existingIndex = getTrackIndexInPlaylist(track.id);
@@ -145,7 +158,7 @@ class AudioPlayerService {
     if (_playlist == null) return;
     final index = getTrackIndexInPlaylist(trackId);
     if (index >= 0) {
-      final currentIndex = _audioPlayer.currentIndex ?? -1;
+      final currentIndex = _primaryPlayer.currentIndex ?? -1;
       if (index == currentIndex) {
         seekToNext();
       }
@@ -154,27 +167,28 @@ class AudioPlayerService {
   }
 
   void resume() {
-    _audioPlayer.play();
+    _primaryPlayer.play();
   }
 
   void pause() {
-    _audioPlayer.pause();
+    _primaryPlayer.pause();
   }
 
   void seek(Duration position, {int? index}) {
-    _audioPlayer.seek(position, index: index);
+    resetCrossfade(); // Cancel any ongoing crossfade on manual seek
+    _primaryPlayer.seek(position, index: index);
   }
 
   void seekToNext() {
-    _audioPlayer.seekToNext();
+    _primaryPlayer.seekToNext();
   }
 
   void seekToPrevious() {
-    _audioPlayer.seekToPrevious();
+    _primaryPlayer.seekToPrevious();
   }
 
   void setShuffleModeEnabled(bool enabled) {
-    _audioPlayer.setShuffleModeEnabled(enabled);
+    _primaryPlayer.setShuffleModeEnabled(enabled);
   }
 
   void setLoopMode(PlayerLoopMode mode) {
@@ -190,11 +204,12 @@ class AudioPlayerService {
         jaMode = LoopMode.one;
         break;
     }
-    _audioPlayer.setLoopMode(jaMode);
+    _primaryPlayer.setLoopMode(jaMode);
   }
 
   void stop() {
-    _audioPlayer.stop();
+    resetCrossfade();
+    _primaryPlayer.stop();
     _playlist = null;
   }
 
@@ -212,8 +227,71 @@ class AudioPlayerService {
     }
   }
 
+  /// Start crossfade: fade out primary, fade in secondary playing [nextTrack].
+  Future<void> startCrossfade(Track nextTrack) async {
+    if (_isCrossfading) return;
+    if (_crossfadeDuration <= Duration.zero) return;
+
+    _isCrossfading = true;
+
+    try {
+      final source = await _createAudioSource(nextTrack);
+      await _secondaryPlayer.setAudioSource(source);
+      await _secondaryPlayer.setVolume(0.0);
+      await _secondaryPlayer.play();
+    } catch (e) {
+      debugPrint('Crossfade load error: $e');
+      _isCrossfading = false;
+      return;
+    }
+
+    final totalMs = _crossfadeDuration.inMilliseconds;
+    const tickMs = 50;
+    int elapsed = 0;
+
+    _fadeTimer?.cancel();
+    _fadeTimer = Timer.periodic(const Duration(milliseconds: tickMs), (timer) async {
+      elapsed += tickMs;
+      final t = (elapsed / totalMs).clamp(0.0, 1.0);
+
+      try {
+        await _primaryPlayer.setVolume(1.0 - t);
+        await _secondaryPlayer.setVolume(t);
+      } catch (_) {}
+
+      if (t >= 1.0) {
+        timer.cancel();
+        _fadeTimer = null;
+        try {
+          await _primaryPlayer.stop();
+          await _primaryPlayer.setVolume(1.0);
+        } catch (_) {}
+        _isCrossfading = false;
+        // ponytail: secondary stops after crossfade; primary resumes next
+        // track via just_audio sequenceStateStream + PlayerNotifier.playTrack
+        Future.delayed(const Duration(milliseconds: 200), () {
+          _secondaryPlayer.stop();
+        });
+      }
+    });
+  }
+
+  /// Cancel any in-progress crossfade and restore primary volume.
+  void resetCrossfade() {
+    if (!_isCrossfading) return;
+    _fadeTimer?.cancel();
+    _fadeTimer = null;
+    _isCrossfading = false;
+    _primaryPlayer.setVolume(1.0);
+    _secondaryPlayer.stop();
+  }
+
+  bool get isCrossfading => _isCrossfading;
+
   void dispose() {
+    _fadeTimer?.cancel();
     _equalizer?.setEnabled(false);
-    _audioPlayer.dispose();
+    _primaryPlayer.dispose();
+    _secondaryPlayer.dispose();
   }
 }

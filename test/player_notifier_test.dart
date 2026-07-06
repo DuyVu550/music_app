@@ -245,6 +245,18 @@ class FakeAudioPlayerService implements AudioPlayerService {
   }
 
   @override
+  Future<void> startCrossfade(Track nextTrack) async {}
+
+  @override
+  void resetCrossfade() {}
+
+  @override
+  void setCrossfadeDuration(Duration duration) {}
+
+  @override
+  bool get isCrossfading => false;
+
+  @override
   void setShuffleModeEnabled(bool enabled) {
     _shuffleController.add(enabled);
   }
@@ -416,5 +428,18 @@ void main() {
         expect(stoppedState?.position, equals(Duration.zero));
       },
     );
+
+    test('crossfadeDurationSeconds defaults to 0', () async {
+      final state = await container.read(playerNotifierProvider.future);
+      expect(state.crossfadeDurationSeconds, 0);
+    });
+
+    test('setCrossfadeDuration updates state', () async {
+      await container.read(playerNotifierProvider.future);
+      final notifier = container.read(playerNotifierProvider.notifier);
+      notifier.setCrossfadeDuration(5);
+      final state = container.read(playerNotifierProvider).value!;
+      expect(state.crossfadeDurationSeconds, 5);
+    });
   });
 }

@@ -14,5 +14,6 @@ abstract class PlayerState with _$PlayerState {
     @Default(Duration.zero) Duration duration,
     @Default(false) bool isShuffleModeEnabled,
     @Default(PlayerLoopMode.off) PlayerLoopMode loopMode,
+    @Default(0) int crossfadeDurationSeconds, // 0 = disabled
   }) = _PlayerState;
 }
