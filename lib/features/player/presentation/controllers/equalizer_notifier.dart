@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/datasources/audio_player_service.dart';
 
 class EqualizerState {
   final String presetName;
@@ -40,10 +41,9 @@ class EqualizerNotifier extends Notifier<EqualizerState> {
 
   void setPreset(String name) {
     if (presets.containsKey(name)) {
-      state = EqualizerState(
-        presetName: name,
-        bandValues: List.from(presets[name]!),
-      );
+      final bands = List<double>.from(presets[name]!);
+      state = EqualizerState(presetName: name, bandValues: bands);
+      _applyToAudio(bands);
     }
   }
 
@@ -51,11 +51,13 @@ class EqualizerNotifier extends Notifier<EqualizerState> {
     if (index >= 0 && index < state.bandValues.length) {
       final newValues = List<double>.from(state.bandValues);
       newValues[index] = value;
-      state = EqualizerState(
-        presetName: 'Custom',
-        bandValues: newValues,
-      );
+      state = EqualizerState(presetName: 'Custom', bandValues: newValues);
+      _applyToAudio(newValues);
     }
+  }
+
+  void _applyToAudio(List<double> bands) {
+    ref.read(audioPlayerServiceProvider).applyEqualizerBands(bands);
   }
 }
 

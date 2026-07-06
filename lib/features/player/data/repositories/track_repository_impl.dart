@@ -16,9 +16,8 @@ class TrackRepositoryImpl implements TrackRepository {
   final Map<String, List<Track>> _categoryTracksCache = {};
   final Map<String, List<Track>> _artistTracksCache = {};
 
-  TrackRepositoryImpl({FirebaseFirestore? firestore, List<Track>? initialTracks})
-    : _firestore = firestore,
-      _cachedTracks = initialTracks;
+  TrackRepositoryImpl({this._firestore, List<Track>? initialTracks})
+    : _cachedTracks = initialTracks;
 
   Future<void> _fetchAllTracksIfNeeded() async {
     if (_cachedTracks != null) return;
@@ -36,13 +35,13 @@ class TrackRepositoryImpl implements TrackRepository {
             id: doc.id,
             title: data['title']?.toString() ?? 'Unknown',
             url: data['audioUrl']?.toString() ?? '',
-            albumId: 'Admin Upload',
+            albumId: data['albumId']?.toString() ?? 'Admin Upload',
             artistIds: [data['artist']?.toString() ?? 'Unknown Artist'],
             durationMs: 0,
             coverUrl: (data['coverUrl']?.toString().isEmpty ?? true)
                 ? null
                 : data['coverUrl']?.toString(),
-            listeners: 0,
+            listeners: (data['listeners'] as num?)?.toInt() ?? 0,
             lyrics: data['lyrics']?.toString(),
           );
         }).toList();
@@ -322,5 +321,70 @@ class TrackRepositoryImpl implements TrackRepository {
 
     _artistTracksCache[artistId] = result;
     return result;
+  }
+
+  @override
+  Future<void> incrementListeners(String trackId) async {
+    if (Firebase.apps.isEmpty) return;
+    try {
+      await FirebaseFirestore.instance.collection('songs').doc(trackId).update({
+        'listeners': FieldValue.increment(1),
+      });
+      // Update cache if present
+      if (_cachedTracks != null) {
+        final idx = _cachedTracks!.indexWhere((t) => t.id == trackId);
+        if (idx >= 0) {
+          final updated = _cachedTracks![idx].copyWith(
+            listeners: _cachedTracks![idx].listeners + 1,
+          );
+          _cachedTracks![idx] = updated;
+        }
+      }
+    } catch (e) {
+      debugPrint('incrementListeners error: $e');
+    }
+  }
+
+  @override
+  Future<void> recordListeningHistory(String userId, Track track) async {
+    if (Firebase.apps.isEmpty) return;
+    try {
+      await FirebaseFirestore.instance
+          .collection('listening_history')
+          .add({
+        'userId': userId,
+        'trackId': track.id,
+        'title': track.title,
+        'artist': track.artistIds.isNotEmpty ? track.artistIds.first : '',
+        'coverUrl': track.coverUrl,
+        'listenedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('recordListeningHistory error: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getListeningHistory(String userId) async {
+    if (Firebase.apps.isEmpty) return [];
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('listening_history')
+          .where('userId', isEqualTo: userId)
+          .orderBy('listenedAt', descending: true)
+          .limit(500)
+          .get();
+      return snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        final ts = data['listenedAt'];
+        if (ts is Timestamp) {
+          data['listenedAt'] = ts.toDate().toIso8601String();
+        }
+        return data;
+      }).toList();
+    } catch (e) {
+      debugPrint('getListeningHistory error: $e');
+      return [];
+    }
   }
 }

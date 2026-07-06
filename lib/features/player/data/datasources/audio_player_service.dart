@@ -1,38 +1,70 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/track.dart';
 import '../../domain/entities/player_loop_mode.dart';
+import 'offline_track_service.dart';
 
 final audioPlayerServiceProvider = Provider<AudioPlayerService>((ref) {
-  final service = AudioPlayerService();
+  final offlineService = ref.read(offlineTrackServiceProvider);
+  final service = AudioPlayerService(offlineService: offlineService);
   ref.onDispose(() => service.dispose());
   return service;
 });
 
 class AudioPlayerService {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  late final AudioPlayer _audioPlayer;
   ConcatenatingAudioSource? _playlist;
+  AndroidEqualizer? _equalizer;
+  final OfflineTrackService offlineService;
 
   Stream<Duration> get positionStream => _audioPlayer.positionStream;
   Stream<Duration?> get durationStream => _audioPlayer.durationStream;
   Stream<PlayerState> get playerStateStream => _audioPlayer.playerStateStream;
-  Stream<SequenceState?> get sequenceStateStream => _audioPlayer.sequenceStateStream;
-  Stream<bool> get shuffleModeEnabledStream => _audioPlayer.shuffleModeEnabledStream;
+  Stream<SequenceState?> get sequenceStateStream =>
+      _audioPlayer.sequenceStateStream;
+  Stream<bool> get shuffleModeEnabledStream =>
+      _audioPlayer.shuffleModeEnabledStream;
   Stream<LoopMode> get loopModeStream => _audioPlayer.loopModeStream;
 
-  AudioSource _createAudioSource(Track track) {
+  /// Getter for the equalizer (Android only). Null on other platforms.
+  AndroidEqualizer? get equalizer => _equalizer;
+
+  AudioPlayerService({required this.offlineService}) {
+    if (!kIsWeb && Platform.isAndroid) {
+      _equalizer = AndroidEqualizer();
+      _audioPlayer = AudioPlayer(
+        audioPipeline: AudioPipeline(
+          androidAudioEffects: [_equalizer!],
+        ),
+      );
+    } else {
+      _audioPlayer = AudioPlayer();
+    }
+  }
+
+  /// Build an AudioSource for a track – uses local file if downloaded.
+  Future<AudioSource> _createAudioSource(Track track) async {
+    final localPath = await offlineService.getLocalFilePath(track.id);
+    final uri = localPath != null
+        ? Uri.file(localPath)
+        : Uri.parse(track.url);
+
     return AudioSource.uri(
-      Uri.parse(track.url),
+      uri,
       tag: MediaItem(
         id: track.id,
         album: track.albumId,
         title: track.title,
-        artist: track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
-        artUri: !kIsWeb && track.coverUrl != null && track.coverUrl!.startsWith('http') 
-            ? Uri.parse(track.coverUrl!) 
+        artist:
+            track.artistIds.isNotEmpty ? track.artistIds.first : 'Unknown Artist',
+        artUri: !kIsWeb &&
+                track.coverUrl != null &&
+                track.coverUrl!.startsWith('http')
+            ? Uri.parse(track.coverUrl!)
             : null,
       ),
     );
@@ -40,8 +72,9 @@ class AudioPlayerService {
 
   Future<void> setPlaylist(List<Track> tracks, {int initialIndex = 0}) async {
     try {
-      final audioSources = tracks.map((track) => _createAudioSource(track)).toList();
-      
+      final audioSources =
+          await Future.wait(tracks.map((t) => _createAudioSource(t)));
+
       _playlist = ConcatenatingAudioSource(children: audioSources);
       await _audioPlayer.stop();
       await _audioPlayer.setAudioSource(
@@ -49,6 +82,11 @@ class AudioPlayerService {
         initialIndex: initialIndex,
       );
       await _audioPlayer.play();
+
+      // Enable equalizer after playback starts (Android only)
+      if (_equalizer != null) {
+        await _equalizer!.setEnabled(true);
+      }
     } catch (e) {
       debugPrint("Error playing audio playlist: $e");
     }
@@ -73,18 +111,21 @@ class AudioPlayerService {
     }
     final currentIndex = _audioPlayer.currentIndex ?? -1;
     final targetIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
-    
+
     final existingIndex = getTrackIndexInPlaylist(track.id);
     if (existingIndex >= 0) {
-      if (existingIndex == targetIndex || existingIndex == targetIndex - 1) return;
+      if (existingIndex == targetIndex || existingIndex == targetIndex - 1) {
+        return;
+      }
+
       _playlist!.removeAt(existingIndex);
       int insertPos = targetIndex;
       if (existingIndex < targetIndex) {
         insertPos--;
       }
-      _playlist!.insert(insertPos, _createAudioSource(track));
+      _createAudioSource(track).then((src) => _playlist!.insert(insertPos, src));
     } else {
-      _playlist!.insert(targetIndex, _createAudioSource(track));
+      _createAudioSource(track).then((src) => _playlist!.insert(targetIndex, src));
     }
   }
 
@@ -97,7 +138,7 @@ class AudioPlayerService {
     if (existingIndex >= 0) {
       _playlist!.removeAt(existingIndex);
     }
-    _playlist!.add(_createAudioSource(track));
+    _createAudioSource(track).then((src) => _playlist!.add(src));
   }
 
   void removeFromQueue(String trackId) {
@@ -157,7 +198,22 @@ class AudioPlayerService {
     _playlist = null;
   }
 
+  /// Apply equalizer band values (in dB). Android only.
+  Future<void> applyEqualizerBands(List<double> bandValues) async {
+    if (_equalizer == null) return;
+    try {
+      final params = await _equalizer!.parameters;
+      final bands = params.bands;
+      for (int i = 0; i < bands.length && i < bandValues.length; i++) {
+        await bands[i].setGain(bandValues[i]);
+      }
+    } catch (e) {
+      debugPrint('Equalizer error: $e');
+    }
+  }
+
   void dispose() {
+    _equalizer?.setEnabled(false);
     _audioPlayer.dispose();
   }
 }

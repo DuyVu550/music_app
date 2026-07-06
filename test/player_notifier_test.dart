@@ -9,6 +9,7 @@ import 'package:music_app/features/player/domain/entities/player_loop_mode.dart'
 import 'package:music_app/features/player/data/datasources/audio_player_service.dart';
 import 'package:music_app/features/explore/domain/entities/category.dart';
 import 'package:music_app/features/explore/domain/entities/artist.dart';
+import 'package:music_app/features/player/data/datasources/offline_track_service.dart';
 
 class FakeTrackRepository implements TrackRepository {
   final List<Track> tracks;
@@ -46,7 +47,17 @@ class FakeTrackRepository implements TrackRepository {
 
   @override
   Future<List<Track>> getTracksByArtist(String artistId) async => [];
+
+  @override
+  Future<void> incrementListeners(String trackId) async {}
+
+  @override
+  Future<void> recordListeningHistory(String userId, Track track) async {}
+
+  @override
+  Future<List<Map<String, dynamic>>> getListeningHistory(String userId) async => [];
 }
+
 
 class FakeSequenceState implements ja.SequenceState {
   @override
@@ -71,7 +82,21 @@ class FakeTag {
   FakeTag(this.id);
 }
 
+class FakeOfflineTrackService implements OfflineTrackService {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class FakeAudioPlayerService implements AudioPlayerService {
+  @override
+  final FakeOfflineTrackService offlineService = FakeOfflineTrackService();
+
+  @override
+  ja.AndroidEqualizer? get equalizer => null;
+
+  @override
+  Future<void> applyEqualizerBands(List<double> bandValues) async {}
+
   final _positionController = StreamController<Duration>.broadcast();
   final _durationController = StreamController<Duration?>.broadcast();
   final _stateController = StreamController<ja.PlayerState>.broadcast();

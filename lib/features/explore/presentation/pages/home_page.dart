@@ -27,6 +27,8 @@ import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../../player/presentation/widgets/song_options_bottom_sheet.dart';
 import 'package:music_app/features/favorites/presentation/pages/favorite_songs_page.dart';
 import 'package:music_app/features/playlist/presentation/pages/my_playlists_page.dart';
+import '../../../player/presentation/pages/downloaded_tracks_page.dart';
+import 'music_wrapped_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -186,6 +188,22 @@ class _HomePageState extends ConsumerState<HomePage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPlaylistsPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.download_for_offline_rounded, color: Colors.cyanAccent),
+              title: const Text('Nhạc đã tải offline', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const DownloadedTracksPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bar_chart_rounded, color: Colors.cyanAccent),
+              title: const Text('Thống kê âm nhạc', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const MusicWrappedPage()));
               },
             ),
             const Divider(color: Colors.white24),

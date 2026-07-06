@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/track.dart';
 import '../controllers/player_notifier.dart';
 import '../../../playlist/presentation/widgets/add_to_playlist_sheet.dart';
+import '../../data/datasources/offline_track_service.dart';
 
 class SongOptionsBottomSheet extends ConsumerWidget {
   final Track track;
@@ -112,36 +112,8 @@ class SongOptionsBottomSheet extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ListTile(
-                      leading: const Icon(
-                        Icons.download_rounded,
-                        color: Colors.cyanAccent,
-                      ),
-                      title: const Text(
-                        'Tải bài hát',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onTap: () async {
-                        final messenger = ScaffoldMessenger.of(context);
-                        Navigator.pop(context);
-                        try {
-                          final url = Uri.parse(track.url);
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(url, mode: LaunchMode.externalApplication);
-                          } else {
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text('Không thể tải bài hát này.'),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          messenger.showSnackBar(
-                            SnackBar(content: Text('Lỗi khi tải: $e')),
-                          );
-                        }
-                      },
-                    ),
+                    // Download tile with real status
+                    _DownloadTile(track: track),
                     ListTile(
                       leading: const Icon(
                         Icons.playlist_play_rounded,
@@ -241,6 +213,117 @@ class SongOptionsBottomSheet extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A download tile that shows real download status using ValueListenableBuilder.
+class _DownloadTile extends ConsumerStatefulWidget {
+  final Track track;
+
+  const _DownloadTile({required this.track});
+
+  @override
+  ConsumerState<_DownloadTile> createState() => _DownloadTileState();
+}
+
+class _DownloadTileState extends ConsumerState<_DownloadTile> {
+  bool _isDownloaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkDownloaded();
+  }
+
+  Future<void> _checkDownloaded() async {
+    final result = await ref
+        .read(offlineTrackServiceProvider)
+        .isTrackDownloaded(widget.track.id);
+    if (mounted) setState(() => _isDownloaded = result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final offlineService = ref.read(offlineTrackServiceProvider);
+    final progressNotifier = offlineService.getProgressNotifier(widget.track.id);
+
+    return ValueListenableBuilder<DownloadProgress>(
+      valueListenable: progressNotifier,
+      builder: (context, progress, _) {
+        final isDownloading = progress.progress > 0.0 && !progress.isDone;
+
+        if (_isDownloaded) {
+          // Show "Xóa bản tải" option
+          return ListTile(
+            leading: const Icon(
+              Icons.download_done_rounded,
+              color: Colors.cyanAccent,
+            ),
+            title: const Text(
+              'Đã tải offline',
+              style: TextStyle(color: Colors.cyanAccent),
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline_rounded,
+                  color: Colors.redAccent, size: 20),
+              onPressed: () async {
+                await offlineService.deleteTrack(widget.track.id);
+                if (mounted) setState(() => _isDownloaded = false);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Đã xóa bản tải cục bộ.'),
+                  ));
+                }
+              },
+            ),
+          );
+        }
+
+        if (isDownloading) {
+          return ListTile(
+            leading: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                value: progress.progress,
+                color: Colors.cyanAccent,
+                strokeWidth: 2.5,
+              ),
+            ),
+            title: Text(
+              'Đang tải... ${(progress.progress * 100).toInt()}%',
+              style: const TextStyle(color: Colors.white70),
+            ),
+          );
+        }
+
+        // Default: show download option
+        return ListTile(
+          leading: const Icon(
+            Icons.download_rounded,
+            color: Colors.cyanAccent,
+          ),
+          title: const Text(
+            'Tải để nghe offline',
+            style: TextStyle(color: Colors.white),
+          ),
+          onTap: () async {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: const Color(0xFF16162A),
+                content: Text(
+                  'Bắt đầu tải "${widget.track.title}"...',
+                  style: const TextStyle(color: Colors.cyanAccent),
+                ),
+              ),
+            );
+            await offlineService.downloadTrack(widget.track);
+            if (mounted) setState(() => _isDownloaded = true);
+          },
+        );
+      },
     );
   }
 }

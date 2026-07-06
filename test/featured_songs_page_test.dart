@@ -48,6 +48,15 @@ class FakeTrackRepository implements TrackRepository {
 
   @override
   Future<List<Track>> getTracksByArtist(String artistId) async => [];
+
+  @override
+  Future<void> incrementListeners(String trackId) async {}
+
+  @override
+  Future<void> recordListeningHistory(String userId, Track track) async {}
+
+  @override
+  Future<List<Map<String, dynamic>>> getListeningHistory(String userId) async => [];
 }
 
 class FakePlayerNotifier extends PlayerNotifier {

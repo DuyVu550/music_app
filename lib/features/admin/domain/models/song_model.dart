@@ -8,6 +8,7 @@ class SongModel {
   final String coverUrl;
   final DateTime createdAt;
   final String? lyrics;
+  final String? albumId;
 
   SongModel({
     required this.id,
@@ -17,6 +18,7 @@ class SongModel {
     required this.coverUrl,
     required this.createdAt,
     this.lyrics,
+    this.albumId,
   });
 
   factory SongModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class SongModel {
           ? (json['createdAt'] as Timestamp).toDate() 
           : DateTime.now(),
       lyrics: json['lyrics'] as String?,
+      albumId: json['albumId'] as String?,
     );
   }
 
@@ -42,6 +45,7 @@ class SongModel {
       'coverUrl': coverUrl,
       'createdAt': Timestamp.fromDate(createdAt),
       'lyrics': lyrics,
+      'albumId': albumId,
     };
   }
 
@@ -53,6 +57,7 @@ class SongModel {
     String? coverUrl,
     DateTime? createdAt,
     String? lyrics,
+    String? albumId,
   }) {
     return SongModel(
       id: id ?? this.id,
@@ -62,6 +67,7 @@ class SongModel {
       coverUrl: coverUrl ?? this.coverUrl,
       createdAt: createdAt ?? this.createdAt,
       lyrics: lyrics ?? this.lyrics,
+      albumId: albumId ?? this.albumId,
     );
   }
 }

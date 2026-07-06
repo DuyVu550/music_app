@@ -6,10 +6,16 @@ import '../../domain/repositories/track_repository.dart';
 import '../../domain/entities/player_loop_mode.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'sleep_timer_notifier.dart';
+import '../../../auth/presentation/controllers/auth_notifier.dart';
 
 
 class PlayerNotifier extends AsyncNotifier<PlayerState> {
   bool _isPlaylistInitialized = false;
+
+  // Listening history tracking
+  String? _currentTrackedId;
+  Duration _listenedDuration = Duration.zero;
+  bool _hasRecordedForCurrentTrack = false;
 
   @override
   Future<PlayerState> build() async {
@@ -22,6 +28,23 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
       final current = state.value;
       if (current != null && current.position != position) {
         state = AsyncData(current.copyWith(position: position));
+
+        // Track listening time for history/stats
+        final track = current.currentTrack;
+        if (track != null && current.isPlaying) {
+          if (_currentTrackedId != track.id) {
+            // Track changed – reset
+            _currentTrackedId = track.id;
+            _listenedDuration = Duration.zero;
+            _hasRecordedForCurrentTrack = false;
+          }
+          _listenedDuration += const Duration(seconds: 1);
+          if (!_hasRecordedForCurrentTrack &&
+              _listenedDuration.inSeconds >= 30) {
+            _hasRecordedForCurrentTrack = true;
+            _recordListeningEvent(track);
+          }
+        }
       }
     });
 
@@ -328,6 +351,17 @@ class PlayerNotifier extends AsyncNotifier<PlayerState> {
           break;
       }
       ref.read(audioPlayerServiceProvider).setLoopMode(nextMode);
+    }
+  }
+
+  void _recordListeningEvent(Track track) {
+    final repo = ref.read(trackRepositoryProvider);
+    // Increment global listeners count
+    repo.incrementListeners(track.id);
+    // Record per-user history if user is logged in
+    final user = ref.read(authNotifierProvider).value;
+    if (user != null) {
+      repo.recordListeningHistory(user.id, track);
     }
   }
 }

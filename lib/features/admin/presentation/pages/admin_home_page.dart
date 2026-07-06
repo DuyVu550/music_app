@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/controllers/auth_notifier.dart';
 import '../../../auth/presentation/pages/change_password_page.dart';
 import '../../../auth/presentation/pages/profile_page.dart';
+import 'admin_dashboard_page.dart';
 import 'song_management_page.dart';
 import 'category_management_page.dart';
 import 'artist_management_page.dart';
 import 'feedback_management_page.dart';
+import 'album_management_page.dart';
 
 class AdminHomePage extends ConsumerStatefulWidget {
   const AdminHomePage({super.key});
@@ -20,21 +22,27 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
+    AdminDashboardPage(),
     SongManagementPage(),
     CategoryManagementPage(),
     ArtistManagementPage(),
+    AlbumManagementPage(),
     FeedbackManagementPage(),
   ];
 
   String _getTitle(int index) {
     switch (index) {
       case 0:
-        return 'Quản lý Bài hát';
+        return 'Dashboard';
       case 1:
-        return 'Quản lý Thể loại';
+        return 'Quản lý Bài hát';
       case 2:
-        return 'Quản lý Nghệ sĩ';
+        return 'Quản lý Thể loại';
       case 3:
+        return 'Quản lý Nghệ sĩ';
+      case 4:
+        return 'Quản lý Album';
+      case 5:
         return 'Phản hồi từ Người dùng';
       default:
         return '';
@@ -103,7 +111,13 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
         backgroundColor: const Color(0xFF0F2027),
         selectedItemColor: Colors.cyanAccent,
         unselectedItemColor: Colors.white54,
+        selectedFontSize: 11,
+        unselectedFontSize: 10,
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.library_music_rounded),
             label: 'Bài hát',
@@ -115,6 +129,10 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.people_rounded),
             label: 'Nghệ sĩ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.album_rounded),
+            label: 'Album',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.feedback_rounded),
@@ -131,7 +149,8 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF203A43),
         title: const Text('Đăng xuất', style: TextStyle(color: Colors.white)),
-        content: const Text('Bạn có chắc chắn muốn đăng xuất không?', style: TextStyle(color: Colors.white70)),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất không?',
+            style: TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

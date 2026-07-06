@@ -21,4 +21,9 @@ abstract class TrackRepository {
   Future<List<Artist>> getArtists();
   Future<List<Track>> getTracksByCategory(String categoryId);
   Future<List<Track>> getTracksByArtist(String artistId);
+
+  // Listening history & play count
+  Future<void> incrementListeners(String trackId);
+  Future<void> recordListeningHistory(String userId, Track track);
+  Future<List<Map<String, dynamic>>> getListeningHistory(String userId);
 }
