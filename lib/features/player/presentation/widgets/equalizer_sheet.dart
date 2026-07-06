@@ -13,7 +13,7 @@ class EqualizerSheet extends ConsumerStatefulWidget {
 }
 
 class _EqualizerSheetState extends ConsumerState<EqualizerSheet> {
-  final List<String> _timerOptions = ['Tắt', '5 phút', '15 phút', '30 phút', '45 phút', '60 phút', 'Hết bài'];
+  final List<String> _timerOptions = ['Tắt', '5 phút', '15 phút', '30 phút', '45 phút', '60 phút', 'Hết bài', 'Khác'];
 
   void _onTimerOptionSelected(String option) {
     final sleepTimerNotifier = ref.read(sleepTimerProvider.notifier);
@@ -21,10 +21,75 @@ class _EqualizerSheetState extends ConsumerState<EqualizerSheet> {
       sleepTimerNotifier.cancel();
     } else if (option == 'Hết bài') {
       sleepTimerNotifier.setEndOfTheSong(true);
+    } else if (option == 'Khác') {
+      _showCustomTimerDialog();
     } else {
       final minutes = int.parse(option.split(' ')[0]);
       sleepTimerNotifier.setTimer(Duration(minutes: minutes));
     }
+  }
+
+  void _showCustomTimerDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF16162A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: Colors.cyanAccent.withValues(alpha: 0.2)),
+          ),
+          title: const Text(
+            'Hẹn giờ tùy chỉnh',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Nhập số phút hẹn giờ tắt nhạc:',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Ví dụ: 90',
+                  hintStyle: TextStyle(color: Colors.white30),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.cyanAccent),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy', style: TextStyle(color: Colors.white54)),
+            ),
+            TextButton(
+              onPressed: () {
+                final minutes = int.tryParse(controller.text.trim());
+                if (minutes != null && minutes > 0) {
+                  ref.read(sleepTimerProvider.notifier).setTimer(Duration(minutes: minutes));
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Bật', style: TextStyle(color: Colors.cyanAccent)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   String _formatDuration(Duration duration) {
@@ -133,10 +198,26 @@ class _EqualizerSheetState extends ConsumerState<EqualizerSheet> {
                   itemBuilder: (context, index) {
                     final option = _timerOptions[index];
                     final bool isSelected;
+                    String chipLabel = option;
+
                     if (option == 'Tắt') {
                       isSelected = !sleepTimer.isActive;
                     } else if (option == 'Hết bài') {
                       isSelected = sleepTimer.isEndOfTheSong;
+                    } else if (option == 'Khác') {
+                      final presets = [5, 15, 30, 45, 60];
+                      isSelected = sleepTimer.isActive &&
+                          !sleepTimer.isEndOfTheSong &&
+                          (sleepTimer.remainingTime != null &&
+                              !presets.contains(sleepTimer.remainingTime!.inMinutes) &&
+                              !presets.contains(sleepTimer.remainingTime!.inMinutes + 1));
+                      if (isSelected) {
+                        final mins = sleepTimer.remainingTime!.inMinutes +
+                            (sleepTimer.remainingTime!.inSeconds % 60 > 0 ? 1 : 0);
+                        chipLabel = 'Khác (${mins}p)';
+                      } else {
+                        chipLabel = 'Khác...';
+                      }
                     } else {
                       final minutes = int.parse(option.split(' ')[0]);
                       isSelected = sleepTimer.remainingTime != null &&
@@ -149,7 +230,7 @@ class _EqualizerSheetState extends ConsumerState<EqualizerSheet> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: ChoiceChip(
-                        label: Text(option),
+                        label: Text(chipLabel),
                         selected: isSelected,
                         onSelected: (val) {
                           if (val) _onTimerOptionSelected(option);
