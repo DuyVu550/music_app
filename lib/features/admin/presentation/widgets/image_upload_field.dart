@@ -1,7 +1,8 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ImageUploadField extends StatefulWidget {
   final String? imageUrl;
@@ -22,7 +23,7 @@ class ImageUploadField extends StatefulWidget {
 class _ImageUploadFieldState extends State<ImageUploadField> {
   bool _isUploading = false;
   String? _currentUrl;
-  File? _localImageFile;
+  Uint8List? _localImageBytes;
 
   @override
   void initState() {
@@ -51,23 +52,26 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
 
     if (pickedFile == null) return;
 
+    final bytes = await pickedFile.readAsBytes();
+
     setState(() {
-      _localImageFile = File(pickedFile.path);
+      _localImageBytes = bytes;
       _isUploading = true;
     });
 
     try {
       final dio = Dio();
-      final fileName = pickedFile.path.split('/').last;
+      final fileName = pickedFile.name;
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(
-          pickedFile.path,
+        'file': MultipartFile.fromBytes(
+          bytes,
           filename: fileName,
         ),
       });
 
+      final uploadUrl = dotenv.env['IMAGE_UPLOAD_URL'] ?? 'https://agent.api.eternalai.org/api/users/upload';
       final response = await dio.post(
-        'https://agent.api.eternalai.org/api/users/upload',
+        uploadUrl,
         data: formData,
       );
 
@@ -94,7 +98,7 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
     } catch (e) {
       setState(() {
         _isUploading = false;
-        _localImageFile = null;
+        _localImageBytes = null;
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -110,8 +114,8 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
   @override
   Widget build(BuildContext context) {
     ImageProvider? imageProvider;
-    if (_localImageFile != null) {
-      imageProvider = FileImage(_localImageFile!);
+    if (_localImageBytes != null) {
+      imageProvider = MemoryImage(_localImageBytes!);
     } else if (_currentUrl != null && _currentUrl!.isNotEmpty) {
       imageProvider = NetworkImage(_currentUrl!);
     }
