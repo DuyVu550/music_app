@@ -73,6 +73,9 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
       final response = await dio.post(
         uploadUrl,
         data: formData,
+        options: Options(
+          extra: {'withCredentials': true},
+        ),
       );
 
       if (response.data != null) {
