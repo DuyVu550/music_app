@@ -4,6 +4,7 @@ import '../../../player/domain/entities/album.dart';
 import '../../../player/data/repositories/album_repository_impl.dart';
 import '../../../auth/presentation/widgets/custom_text_field.dart';
 import '../../../auth/presentation/widgets/gradient_button.dart';
+import '../widgets/image_upload_field.dart';
 
 class AddEditAlbumPage extends ConsumerStatefulWidget {
   final Album? album;
@@ -116,21 +117,16 @@ class _AddEditAlbumPageState extends ConsumerState<AddEditAlbumPage> {
           key: _formKey,
           child: Column(
             children: [
-              // Cover preview
-              if (_coverUrlController.text.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      _coverUrlController.text,
-                      height: 140,
-                      width: 140,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                    ),
-                  ),
-                ),
+              ImageUploadField(
+                imageUrl: _coverUrlController.text.trim(),
+                label: 'Ảnh bìa Album',
+                onUploaded: (url) {
+                  setState(() {
+                    _coverUrlController.text = url;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
               CustomTextField(
                 controller: _titleController,
                 labelText: 'Tên Album',
@@ -143,12 +139,6 @@ class _AddEditAlbumPageState extends ConsumerState<AddEditAlbumPage> {
                 controller: _artistController,
                 labelText: 'Nghệ sĩ (cách nhau bằng dấu phẩy)',
                 prefixIcon: Icons.person_rounded,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _coverUrlController,
-                labelText: 'Link ảnh bìa (Cover URL)',
-                prefixIcon: Icons.image_rounded,
               ),
               const SizedBox(height: 16),
               CustomTextField(

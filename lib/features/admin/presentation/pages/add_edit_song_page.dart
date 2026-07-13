@@ -6,6 +6,7 @@ import '../../../auth/presentation/widgets/custom_text_field.dart';
 import '../../../auth/presentation/widgets/gradient_button.dart';
 import '../../../player/domain/entities/album.dart';
 import '../../../player/data/repositories/album_repository_impl.dart';
+import '../widgets/image_upload_field.dart';
 
 final _albumsForPickerProvider = FutureProvider<List<Album>>((ref) async {
   return ref.read(albumRepositoryImplProvider).getAllAlbums();
@@ -151,10 +152,12 @@ class _AddEditSongPageState extends ConsumerState<AddEditSongPage> {
                     : null,
               ),
               const SizedBox(height: 16),
-              CustomTextField(
-                controller: _coverUrlController,
-                labelText: 'Link ảnh bìa (Cover URL)',
-                prefixIcon: Icons.image,
+              ImageUploadField(
+                imageUrl: _coverUrlController.text.trim(),
+                label: 'Ảnh bìa bài hát',
+                onUploaded: (url) {
+                  _coverUrlController.text = url;
+                },
               ),
               const SizedBox(height: 16),
               CustomTextField(

@@ -4,6 +4,7 @@ import '../../../explore/domain/entities/artist.dart';
 import '../controllers/admin_controller.dart';
 import '../../../auth/presentation/widgets/custom_text_field.dart';
 import '../../../auth/presentation/widgets/gradient_button.dart';
+import '../widgets/image_upload_field.dart';
 
 class AddEditArtistPage extends ConsumerStatefulWidget {
   final Artist? artist;
@@ -93,11 +94,12 @@ class _AddEditArtistPageState extends ConsumerState<AddEditArtistPage> {
                 validator: (val) => val == null || val.isEmpty ? 'Vui lòng nhập tên nghệ sĩ' : null,
               ),
               const SizedBox(height: 16),
-              CustomTextField(
-                controller: _imageUrlController,
-                labelText: 'Link ảnh nghệ sĩ (Image URL)',
-                prefixIcon: Icons.image,
-                validator: (val) => val == null || val.isEmpty ? 'Vui lòng nhập link ảnh' : null,
+              ImageUploadField(
+                imageUrl: _imageUrlController.text.trim(),
+                label: 'Ảnh nghệ sĩ',
+                onUploaded: (url) {
+                  _imageUrlController.text = url;
+                },
               ),
               const SizedBox(height: 32),
               GradientButton(

@@ -4,6 +4,7 @@ import '../../../explore/domain/entities/category.dart';
 import '../controllers/admin_controller.dart';
 import '../../../auth/presentation/widgets/custom_text_field.dart';
 import '../../../auth/presentation/widgets/gradient_button.dart';
+import '../widgets/image_upload_field.dart';
 
 class AddEditCategoryPage extends ConsumerStatefulWidget {
   final Category? category;
@@ -93,11 +94,12 @@ class _AddEditCategoryPageState extends ConsumerState<AddEditCategoryPage> {
                 validator: (val) => val == null || val.isEmpty ? 'Vui lòng nhập tên thể loại' : null,
               ),
               const SizedBox(height: 16),
-              CustomTextField(
-                controller: _imageUrlController,
-                labelText: 'Link ảnh thể loại (Image URL)',
-                prefixIcon: Icons.image,
-                validator: (val) => val == null || val.isEmpty ? 'Vui lòng nhập link ảnh' : null,
+              ImageUploadField(
+                imageUrl: _imageUrlController.text.trim(),
+                label: 'Ảnh thể loại',
+                onUploaded: (url) {
+                  _imageUrlController.text = url;
+                },
               ),
               const SizedBox(height: 32),
               GradientButton(
