@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ImageUploadField extends StatefulWidget {
   final String? imageUrl;
@@ -63,17 +62,11 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
       final dio = Dio();
       final fileName = pickedFile.name;
       final formData = FormData.fromMap({
-        'file': MultipartFile.fromBytes(
-          bytes,
-          filename: fileName,
-        ),
+        'file': MultipartFile.fromBytes(bytes, filename: fileName),
       });
 
-      final uploadUrl = dotenv.env['IMAGE_UPLOAD_URL'] ?? 'https://agent.api.eternalai.org/api/users/upload';
-      final response = await dio.post(
-        uploadUrl,
-        data: formData,
-      );
+      final uploadUrl = 'https://agent.api.eternalai.org/api/users/upload';
+      final response = await dio.post(uploadUrl, data: formData);
 
       if (response.data != null) {
         final resData = response.data;
@@ -81,7 +74,8 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
           throw Exception(resData['error']['message'] ?? 'Upload failed');
         }
 
-        final String? uploadedUrl = resData['data'] ?? resData['result'] ?? resData['url'];
+        final String? uploadedUrl =
+            resData['data'] ?? resData['result'] ?? resData['url'];
         if (uploadedUrl == null || uploadedUrl.isEmpty) {
           throw Exception('Không lấy được URL hình ảnh từ phản hồi');
         }
@@ -146,10 +140,7 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
                 width: 1.5,
               ),
               image: imageProvider != null
-                  ? DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                    )
+                  ? DecorationImage(image: imageProvider, fit: BoxFit.cover)
                   : null,
             ),
             child: Stack(
@@ -163,7 +154,9 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
                   ),
                 Center(
                   child: _isUploading
-                      ? const CircularProgressIndicator(color: Colors.cyanAccent)
+                      ? const CircularProgressIndicator(
+                          color: Colors.cyanAccent,
+                        )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
