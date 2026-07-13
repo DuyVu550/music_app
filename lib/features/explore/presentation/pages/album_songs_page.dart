@@ -46,7 +46,7 @@ class AlbumSongsPage extends ConsumerWidget {
                     // Album Cover
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: album.coverUrl != null && album.coverUrl!.startsWith('http')
+                      child: album.coverUrl != null && (album.coverUrl!.startsWith('http') || album.coverUrl!.startsWith('data:'))
                           ? Image.network(
                               album.coverUrl!,
                               width: 130,

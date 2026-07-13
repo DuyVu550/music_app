@@ -501,7 +501,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           final album = albums[index];
                           final hasImage = album.coverUrl != null &&
                               album.coverUrl!.isNotEmpty &&
-                              album.coverUrl!.startsWith('http');
+                              (album.coverUrl!.startsWith('http') || album.coverUrl!.startsWith('data:'));
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -975,7 +975,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildSongTile(WidgetRef ref, Track track) {
     final hasNetworkImage = track.coverUrl != null &&
         track.coverUrl!.isNotEmpty &&
-        track.coverUrl!.startsWith('http');
+        (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

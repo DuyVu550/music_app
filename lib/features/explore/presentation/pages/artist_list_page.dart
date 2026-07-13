@@ -153,7 +153,7 @@ class _ArtistListPageState extends ConsumerState<ArtistListPage> {
                                 color: Colors.cyanAccent.withValues(alpha: 0.1),
                               ),
                               child: ClipOval(
-                                child: artist.imageUrl.startsWith('http')
+                                child: (artist.imageUrl.startsWith('http') || artist.imageUrl.startsWith('data:'))
                                     ? Image.network(
                                         artist.imageUrl,
                                         width: 84,

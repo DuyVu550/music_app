@@ -140,7 +140,7 @@ class _AddSongsToPlaylistSheetState extends ConsumerState<AddSongsToPlaylistShee
                         itemBuilder: (context, index) {
                           final Track track = filteredTracks[index];
                           final isAdded = currentPlaylist.trackIds.contains(track.id);
-                          final hasNetworkImage = track.coverUrl != null && track.coverUrl!.startsWith('http');
+                          final hasNetworkImage = track.coverUrl != null && (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
 
                           return ListTile(
                             leading: ClipRRect(

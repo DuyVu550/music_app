@@ -45,7 +45,7 @@ class NewSongsPage extends ConsumerWidget {
   }
 
   Widget _buildSongTile(BuildContext context, WidgetRef ref, Track track) {
-    final hasNetworkImage = track.coverUrl != null && track.coverUrl!.isNotEmpty && track.coverUrl!.startsWith('http');
+    final hasNetworkImage = track.coverUrl != null && track.coverUrl!.isNotEmpty && (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

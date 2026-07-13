@@ -104,7 +104,7 @@ class _AlbumTile extends ConsumerWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: album.coverUrl != null && album.coverUrl!.startsWith('http')
+          child: album.coverUrl != null && (album.coverUrl!.startsWith('http') || album.coverUrl!.startsWith('data:'))
               ? Image.network(
                   album.coverUrl!,
                   width: 54,

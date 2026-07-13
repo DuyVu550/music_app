@@ -354,7 +354,7 @@ class _TopSongRow extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: track.coverUrl != null &&
-                    track.coverUrl!.startsWith('http')
+                    (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'))
                 ? Image.network(
                     track.coverUrl!,
                     width: 44,

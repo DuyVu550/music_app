@@ -61,7 +61,7 @@ class FavoriteSongsPage extends ConsumerWidget {
                 itemCount: favoriteTracks.length,
                 itemBuilder: (context, index) {
                   final track = favoriteTracks[index];
-                  final hasNetworkImage = track.coverUrl != null && track.coverUrl!.startsWith('http');
+                  final hasNetworkImage = track.coverUrl != null && (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
 
                   return ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),

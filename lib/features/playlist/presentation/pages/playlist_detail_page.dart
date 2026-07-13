@@ -372,7 +372,7 @@ class PlaylistDetailPage extends ConsumerWidget {
                         final track = tracks[index];
                         final hasNetworkImage =
                             track.coverUrl != null &&
-                            track.coverUrl!.startsWith('http');
+                            (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 24,

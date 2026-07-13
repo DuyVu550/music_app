@@ -59,7 +59,7 @@ class AllSongsPage extends ConsumerWidget {
     final hasNetworkImage =
         track.coverUrl != null &&
         track.coverUrl!.isNotEmpty &&
-        track.coverUrl!.startsWith('http');
+        (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

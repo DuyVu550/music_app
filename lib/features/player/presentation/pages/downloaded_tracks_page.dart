@@ -170,7 +170,7 @@ class _DownloadedTrackTile extends StatelessWidget {
         onTap: onPlay,
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: track.coverUrl != null && track.coverUrl!.startsWith('http')
+          child: track.coverUrl != null && (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'))
               ? Image.network(
                   track.coverUrl!,
                   width: 52,

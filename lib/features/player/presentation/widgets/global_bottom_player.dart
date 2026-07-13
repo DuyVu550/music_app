@@ -42,7 +42,7 @@ class GlobalBottomPlayerWidget extends ConsumerWidget {
 
         final hasNetworkImage = currentTrack.coverUrl != null &&
             currentTrack.coverUrl!.isNotEmpty &&
-            currentTrack.coverUrl!.startsWith('http');
+            (currentTrack.coverUrl!.startsWith('http') || currentTrack.coverUrl!.startsWith('data:'));
 
         return GestureDetector(
           onTap: () {

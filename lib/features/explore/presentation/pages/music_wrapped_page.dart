@@ -420,7 +420,7 @@ class _TrackBarRow extends StatelessWidget {
           // Cover
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: coverUrl != null && coverUrl!.startsWith('http')
+            child: coverUrl != null && (coverUrl!.startsWith('http') || coverUrl!.startsWith('data:'))
                 ? Image.network(
                     coverUrl!,
                     width: 44,
@@ -618,7 +618,7 @@ class _RecentHistoryTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: coverUrl != null && coverUrl!.startsWith('http')
+            child: coverUrl != null && (coverUrl!.startsWith('http') || coverUrl!.startsWith('data:'))
                 ? Image.network(
                     coverUrl!,
                     width: 40,

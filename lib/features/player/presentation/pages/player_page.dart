@@ -457,7 +457,7 @@ class _PlayerPageState extends ConsumerState<PlayerPage> {
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                                 leading: ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
-                                  child: (item.coverUrl != null && item.coverUrl!.startsWith('http'))
+                                  child: (item.coverUrl != null && (item.coverUrl!.startsWith('http') || item.coverUrl!.startsWith('data:')))
                                       ? Image.network(
                                           item.coverUrl!,
                                           width: 40,
@@ -589,7 +589,7 @@ class _SpinningAlbumArtState extends State<SpinningAlbumArt> with SingleTickerPr
             alignment: Alignment.center,
             children: [
               ClipOval(
-                child: (widget.track.coverUrl != null && widget.track.coverUrl!.startsWith('http'))
+                child: (widget.track.coverUrl != null && (widget.track.coverUrl!.startsWith('http') || widget.track.coverUrl!.startsWith('data:')))
                     ? Image.network(
                         widget.track.coverUrl!,
                         width: 280,

@@ -15,7 +15,7 @@ class SongOptionsBottomSheet extends ConsumerWidget {
     final hasNetworkImage =
         track.coverUrl != null &&
         track.coverUrl!.isNotEmpty &&
-        track.coverUrl!.startsWith('http');
+        (track.coverUrl!.startsWith('http') || track.coverUrl!.startsWith('data:'));
 
     final playerState = ref.watch(playerNotifierProvider).value;
     final isInQueue =
