@@ -16,7 +16,7 @@
 # 3. Tech Stack đang dùng:
 #    - Framework: Flutter
 #    - State Management: Riverpod (Ưu tiên AsyncNotifierProvider để quản lý state bất đồng bộ)
-#    - Local/Remote Communication: Dio, Retrofit (hoặc ApiClient tự viết)
+#    - Local/Remote Communication: Firebase (Auth & Cloud Firestore)
 #    - Code Generation: Freezed (Entity & Model bất biến - Immutable), Build Runner
 #
 # 4. Luồng xử lý quan trọng (Data Flow):
@@ -24,7 +24,7 @@
 #    - Domain Entity -> Riverpod Controller (AsyncNotifier) -> Rebuild UI (ConsumerWidget/ConsumerStatefulWidget)
 #
 # 5. Những file/module cần chú ý:
-#    - lib/core/network/api_client.dart : Điểm tập trung cấu hình gọi mạng (Dio).
+#    - lib/features/auth/data/datasources : Giao tiếp Firebase Auth & Firestore.
 #    - lib/core/theme/theme.dart : Thiết lập giao diện Dark/Light Mode đồng nhất.
 #    - lib/features/player : Feature cốt lõi xử lý audio playback.
 #

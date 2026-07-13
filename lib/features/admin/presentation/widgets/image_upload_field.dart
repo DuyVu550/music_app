@@ -70,19 +70,9 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
       });
 
       final uploadUrl = dotenv.env['IMAGE_UPLOAD_URL'] ?? 'https://agent.api.eternalai.org/api/users/upload';
-      final uploadToken = dotenv.env['IMAGE_UPLOAD_TOKEN'];
-      
-      final Map<String, dynamic> headers = {};
-      if (uploadToken != null && uploadToken.isNotEmpty) {
-        headers['Authorization'] = 'Bearer $uploadToken';
-      }
-
       final response = await dio.post(
         uploadUrl,
         data: formData,
-        options: Options(
-          headers: headers,
-        ),
       );
 
       if (response.data != null) {
