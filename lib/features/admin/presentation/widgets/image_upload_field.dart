@@ -1,5 +1,6 @@
-import 'dart:typed_data';
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -52,6 +53,27 @@ class _ImageUploadFieldState extends State<ImageUploadField> {
     if (pickedFile == null) return;
 
     final bytes = await pickedFile.readAsBytes();
+
+    if (kIsWeb) {
+      final base64String = base64Encode(bytes);
+      String mimeType = 'image/jpeg';
+      final nameLower = pickedFile.name.toLowerCase();
+      if (nameLower.endsWith('.png')) {
+        mimeType = 'image/png';
+      } else if (nameLower.endsWith('.gif')) {
+        mimeType = 'image/gif';
+      } else if (nameLower.endsWith('.webp')) {
+        mimeType = 'image/webp';
+      }
+      final uploadedUrl = 'data:$mimeType;base64,$base64String';
+      setState(() {
+        _localImageBytes = bytes;
+        _currentUrl = uploadedUrl;
+        _isUploading = false;
+      });
+      widget.onUploaded(uploadedUrl);
+      return;
+    }
 
     setState(() {
       _localImageBytes = bytes;
