@@ -165,7 +165,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'photoUrl': base64Image,
     });
     // Update firebase auth (optional, but good for sync)
-    await user.updatePhotoURL(base64Image);
+    try {
+      if (base64Image.length < 2048 &&
+          (base64Image.startsWith('http://') || base64Image.startsWith('https://'))) {
+        await user.updatePhotoURL(base64Image);
+      }
+    } catch (_) {
+      // Ignore firebase auth sync errors for base64 or custom URLs
+    }
   }
 
   @override
