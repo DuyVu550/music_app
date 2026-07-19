@@ -46,3 +46,6 @@ app.*.map.json
 
 # Private environment variables
 .env
+
+# Graphify output
+/graphify-out/
