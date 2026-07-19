@@ -1,0 +1,204 @@
+rules_version = '2';
+
+// =============================================================================
+// FIRESTORE SECURITY RULES - Harmonix Music App
+// -----------------------------------------------------------------------------
+// Nguyên tắc: mặc định CHẶN mọi thứ, chỉ mở đúng những gì client thực sự cần.
+// Phân quyền dựa trên field `role` trong tài liệu users/{uid} ('admin' | 'user').
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------- Hàm tiện ích -------------------------
+
+    // Đã đăng nhập chưa
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Có phải chủ tài khoản uid này không
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Có phải admin không (đọc role từ hồ sơ users của chính người gọi)
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // So với bản ghi cũ, chỉ đúng các key trong `keys` bị thay đổi
+    function changedKeysOnly(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // Kiểm tra định dạng email cơ bản
+    function isValidEmail(email) {
+      return email is string && email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+
+    // ------------------------- users -------------------------
+    match /users/{userId} {
+      // Chủ tài khoản đọc hồ sơ của mình; admin đọc để thống kê dashboard
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Khi đăng ký: chỉ tạo hồ sơ của chính mình, đúng kiểu dữ liệu, KHÔNG được tự phong admin
+      allow create: if isOwner(userId)
+                    && request.resource.data.role == 'user'
+                    && request.resource.data.email is string
+                    && isValidEmail(request.resource.data.email)
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 100
+                    && (!('photoUrl' in request.resource.data) || (request.resource.data.photoUrl is string && request.resource.data.photoUrl.size() <= 1000));
+
+      // Cập nhật tên/ảnh: chỉ chủ tài khoản và role phải giữ nguyên (chống leo quyền).
+      // Admin được cập nhật tự do (ví dụ đổi role người khác).
+      allow update: if (isOwner(userId)
+                        && request.resource.data.role == resource.data.role
+                        && request.resource.data.email is string
+                        && isValidEmail(request.resource.data.email)
+                        && request.resource.data.name is string
+                        && request.resource.data.name.size() > 0
+                        && request.resource.data.name.size() <= 100
+                        && (!('photoUrl' in request.resource.data) || (request.resource.data.photoUrl is string && request.resource.data.photoUrl.size() <= 1000)))
+                    || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ------------------------- songs (catalog) -------------------------
+    match /songs/{songId} {
+      allow read: if isSignedIn();
+
+      // Người dùng thường chỉ được TĂNG lượt nghe đúng 1 đơn vị (incrementListeners).
+      // Mọi thay đổi khác (tiêu đề, url, xóa, tạo) cần quyền admin.
+      allow update: if isAdmin()
+                    || (isSignedIn()
+                        && changedKeysOnly(['listeners'])
+                        && request.resource.data.listeners is int
+                        && request.resource.data.listeners == resource.data.listeners + 1);
+
+      allow create, delete: if isAdmin();
+
+      // ---- comments (subcollection) ----
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+
+        // Chỉ được đăng bình luận dưới danh nghĩa chính mình, kiểm tra kiểu dữ liệu và độ dài nội dung
+        allow create: if isSignedIn()
+                      && request.resource.data.userId == request.auth.uid
+                      && request.resource.data.songId is string
+                      && request.resource.data.userName is string
+                      && request.resource.data.userName.size() <= 100
+                      && request.resource.data.content is string
+                      && request.resource.data.content.size() > 0
+                      && request.resource.data.content.size() <= 1000
+                      && request.resource.data.createdAt is timestamp;
+
+        // Chủ bình luận hoặc admin được xóa
+        allow delete: if isSignedIn()
+                      && (resource.data.userId == request.auth.uid || isAdmin());
+
+        // Không hỗ trợ sửa bình luận
+        allow update: if false;
+      }
+    }
+
+    // ------------------------- catalog do admin quản lý -------------------------
+    match /categories/{categoryId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /artists/{artistId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /albums/{albumId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ------------------------- feedbacks -------------------------
+    match /feedbacks/{feedbackId} {
+      // Người dùng gửi phản hồi; chỉ admin đọc & xóa để quản lý
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.rating is number
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5
+                    && request.resource.data.comment is string
+                    && request.resource.data.comment.size() > 0
+                    && request.resource.data.comment.size() <= 2000
+                    && request.resource.data.contactEmail is string
+                    && (request.resource.data.contactEmail == '' || isValidEmail(request.resource.data.contactEmail))
+                    && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is timestamp);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ------------------------- favorites -------------------------
+    match /favorites/{favoriteId} {
+      allow read:   if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.trackId is string
+                    && request.resource.data.createdAt is timestamp;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow update: if false; // toggle = create/delete, không cần update
+    }
+
+    // ------------------------- playlists -------------------------
+    match /playlists/{playlistId} {
+      allow read:   if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.id is string
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 100
+                    && request.resource.data.trackIds is list
+                    && request.resource.data.trackIds.size() <= 200
+                    && (!('description' in request.resource.data) || (request.resource.data.description is string && request.resource.data.description.size() <= 500))
+                    && (!('coverUrl' in request.resource.data) || (request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 1000))
+                    && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string);
+
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 100
+                    && request.resource.data.trackIds is list
+                    && request.resource.data.trackIds.size() <= 200
+                    && (!('description' in request.resource.data) || (request.resource.data.description is string && request.resource.data.description.size() <= 500))
+                    && (!('coverUrl' in request.resource.data) || (request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 1000))
+                    && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string);
+
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ------------------------- listening_history -------------------------
+    match /listening_history/{docId} {
+      allow read:   if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.trackId is string
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() <= 200
+                    && request.resource.data.artist is string
+                    && request.resource.data.artist.size() <= 200
+                    && (!('coverUrl' in request.resource.data) || (request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 1000))
+                    && request.resource.data.listenedAt is timestamp;
+      allow update, delete: if false; // lịch sử chỉ ghi thêm, không sửa/xóa
+    }
+
+    // ------------------------- Mặc định: chặn hết -------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
